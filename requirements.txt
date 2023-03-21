@@ -1,6 +1,4 @@
 Jinja2==3.0.1
-alembic==1.7.3
-mysqlclient==2.1.0
 pylibmc==1.6.1
 tornado==6.1
 tornado_sqlalchemy==0.7.0

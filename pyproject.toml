@@ -11,8 +11,6 @@ tornado = "^6.1"
 tornado_sqlalchemy = "^0.7.0"
 Jinja2 = "^3.0.1"
 pylibmc = "^1.6.1"
-alembic = "^1.7.3"
-mysqlclient = "^2.0.3"
 loguru = "^0.5.3"
 redis = "^4.5.1"
 
