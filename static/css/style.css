@@ -55,6 +55,11 @@ a.logo:hover {
   border-bottom: none;
 }
 
+a.juicebox:link, a.juicebox:visited {
+  text-decoration: none;
+  border-bottom: none;
+}
+
 h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child, p:first-child, section:first-child {
   margin-top: 0px;
 }
