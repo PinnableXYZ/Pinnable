@@ -140,7 +140,7 @@ header {
 
 nav {
   min-width: 140px;
-  min-height: calc(100vh - 60px - 1px - 40px);
+  min-height: calc(100vh - 60px - 1px - 40px - 20px - 1px);
   background-color: transparent;
   padding: 20px 20px 20px 0px;
 }
