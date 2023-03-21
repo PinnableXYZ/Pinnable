@@ -317,6 +317,22 @@ i.dwb {
   vertical-align: middle;
 }
 
+figure {
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+}
+
+figcaption {
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.6;
+  color: #22222f;
+}
+
+img.screenshot {
+  max-width: 100%;
+}
+
 /* hide aside when width is less than 900px */
 
 @media screen and (max-width: 900px) {
