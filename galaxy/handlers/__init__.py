@@ -5,13 +5,12 @@ import datetime
 import re
 
 import tornado.web
-from tornado_sqlalchemy import SessionMixin
 
 import config
 from galaxy.handlers.pinnable import PinnableMixin
 
 
-class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
+class BaseHandler(tornado.web.RequestHandler, PinnableMixin):
     def now(self):
         return int(calendar.timegm(datetime.datetime.utcnow().timetuple()))
 
