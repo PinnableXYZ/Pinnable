@@ -60,5 +60,4 @@ class BaseHandler(tornado.web.RequestHandler, PinnableMixin):
         if not hasattr(self, "_values"):
             self._values = {}
             self._values["static_url"] = self.static_url
-            self._values["avatar_server_prefix"] = config.avatar_server_prefix
         return self._values
