@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Pinnable{% endblock %}</title>
+  <link rel="stylesheet" type="text/css" href="{{ static_url('css/style.css') }}">
+  {% if theme_color %}
+  <meta name="theme-color" content="{{ theme_color }}">
+  <style>
+  :root {
+    --color-theme: {{ theme_color }};
+  }
+  </style>
+  {% endif %}
+</head>
+<body>
+<div class="top-container">
+  <header style="display: flex; align-items: center;">
+    <a href="/" class="logo"><img src="{{ static_url('img/pinnable.svg') }}" alt="Pinnable" height="32" border="0" style="vertical-align: bottom;"></a>
+  </header>
+</div>
+<div class="main-wrapper">
+<div class="main-container">
+  <nav>
+    <a class="nav-item" href="/">Home</a>
+    <a class="nav-item" href="/pricing">Pricing</a>
+    <a class="nav-item" href="/planet">Planet</a>
+  </nav>
+  <article>
+    {% block content %}
+    {% endblock %}
+  </article>
+  <aside>
+  </aside>
+</div>
+</div>
+<div class="bottom-container">
+  <footer></footer>
+</div>
+</body>
+</html>

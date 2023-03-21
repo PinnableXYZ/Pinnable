@@ -1,0 +1,65 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block title %}Pricing{% endblock %}
+{% block content %}
+<div class="box">
+    <h1>Pricing</h1>
+    <section>
+
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Tier 1</th>
+                    <th>Tier 2</th>
+                    <th>Tier 3</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Payment</td>
+                    <td>0.05 E</td>
+                    <td>0.1 E</td>
+                    <td>0.25 E</td>
+                </tr>
+                <tr>
+                    <td>NFT</td>
+                    <td>NFT 1</td>
+                    <td>NFT 2</td>
+                    <td>NFT 3</td>
+                </tr>
+                <tr>
+                    <td><i class="dwb"></i> dwb Tokens <sup>1</sup></td>
+                    <td>50</td>
+                    <td>100</td>
+                    <td>250</td>
+                </tr>
+                <tr>
+                    <td>Pinning</td>
+                    <td>Yes</td>
+                    <td>Yes</td>
+                    <td>Yes</td>
+                </tr>
+                <tr>
+                    <td>Domains</td>
+                    <td>2</td>
+                    <td>5</td>
+                    <td>25</td>
+                </tr>
+                <tr>
+                    <td>Storage <sup>2</sup></td>
+                    <td>5G</td>
+                    <td>10G</td>
+                    <td>25G</td>
+                </tr>
+            </tbody>
+        </table>
+
+    <p><small>1. This is not an investment. By contributing, you are supporting the development of open-source software designed to simplify the pinning of websites deployed on the IPFS peer-to-peer network. In return, you will receive utility tokens, which are necessary to access and utilize the pinning service.</small></p>
+    
+    <p><small>2. Storage space is shared among all of your domains. You can obtain more storage space by holding more dwb tokens.</small></p>
+    </section>
+</div>
+
+{% include 'desktop/common/juicebox.html' %}
+
+{% endblock %}

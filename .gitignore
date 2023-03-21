@@ -1,0 +1,9 @@
+*.egg-info
+*.pyc
+*.pyo
+.DS_Store
+.python-version
+.pytest_cache
+__pycache__
+poetry.lock
+config.py
