@@ -2,3 +2,4 @@ Jinja2==3.1.2
 pylibmc==1.6.3
 tornado==6.2
 redis==4.5.4
+loguru==0.6.0
