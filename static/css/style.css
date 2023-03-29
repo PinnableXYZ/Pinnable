@@ -11,7 +11,7 @@
 
   --color-link: #44444f;
   --color-link-hover: #11111f;
-  
+
   --card-background-color: rgba(255, 255, 255, 0.6);
   --card-alt-background-color: rgba(255, 255, 255, 0.7);
   --card-background-hover-color: rgba(255, 255, 255, 0.8);
@@ -333,13 +333,48 @@ img.screenshot {
   max-width: 100%;
 }
 
+a.btn-siwe:link, a.btn-siwe:visited {
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+  background-color: violet;
+  font-size: 16px;
+  line-height: 1;
+  padding: 10px 20px;
+  border-radius: 4px;
+  border-bottom: 1px solid #333;
+}
+
+.nft-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto;
+  grid-gap: 10px;
+}
+
+.nft img {
+  width: 100%;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03),
+              0 2px 4px rgba(0,0,0,0.03),
+              0 4px 8px rgba(0,0,0,0.03),
+              0 8px 16px rgba(0,0,0,0.03);
+}
+
+.nft .caption {
+  padding-top: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  font-family: "Berkeley Mono", "Menlo", monospace;
+}
+
 /* hide aside when width is less than 900px */
 
 @media screen and (max-width: 900px) {
   .main-container {
     flex-direction: column;
   }
-  
+
   nav {
     min-height: auto;
     display: flex;
