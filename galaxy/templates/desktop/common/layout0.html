@@ -4,6 +4,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}Pinnable{% endblock %}</title>
   <link rel="stylesheet" type="text/css" href="{{ static_url('css/style.css') }}">
+  <script type="text/javascript" src="{{ static_url("js/vendor/ethers.umd.min.js") }}"></script>
+  <script type="text/javascript" src="{{ static_url("js/main.js") }}"></script>
   {% if theme_color %}
   <meta name="theme-color" content="{{ theme_color }}">
   <style>
