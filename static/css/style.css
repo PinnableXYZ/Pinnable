@@ -20,6 +20,11 @@
   --card-background-dark-hover-color: rgba(32, 32, 32, 0.9);
 
   --card-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+
+  --shadows: 0 1px 2px rgba(0,0,0,0.03),
+            0 2px 4px rgba(0,0,0,0.03),
+            0 4px 8px rgba(0,0,0,0.03),
+            0 8px 16px rgba(0,0,0,0.03);
 }
 
 html {
@@ -60,14 +65,6 @@ a.juicebox:link, a.juicebox:visited {
   border-bottom: none;
 }
 
-h1:first-child, h2:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child, p:first-child, section:first-child, ul:first-child {
-  margin-top: 0px;
-}
-
-h1:last-child, h2:last-child, h3:last-child, h4:last-child, h5:last-child, h6:last-child, p:last-child, section:last-child, ul:last-child {
-  margin-bottom: 0px;
-}
-
 h1 {
   font-size: 28px;
   line-height: 1;
@@ -88,6 +85,15 @@ h2 {
   font-weight: 600;
   color: #fff;
   text-shadow: 1px 1px 0px #000;
+}
+
+h2.aside {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.25);
+  text-shadow: none;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 h3 {
@@ -262,10 +268,7 @@ article table {
   width: 100%;
   padding: 0px;
   border-collapse: collapse;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03),
-              0 2px 4px rgba(0,0,0,0.03),
-              0 4px 8px rgba(0,0,0,0.03),
-              0 8px 16px rgba(0,0,0,0.03);
+  box-shadow: var(--shadows);
 }
 
 article table tr {
@@ -355,10 +358,7 @@ a.btn-siwe:link, a.btn-siwe:visited {
 .nft img {
   width: 100%;
   border-radius: 2px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03),
-              0 2px 4px rgba(0,0,0,0.03),
-              0 4px 8px rgba(0,0,0,0.03),
-              0 8px 16px rgba(0,0,0,0.03);
+  box-shadow: var(--shadows);
 }
 
 .nft .caption {
@@ -366,6 +366,51 @@ a.btn-siwe:link, a.btn-siwe:visited {
   font-size: 12px;
   line-height: 1.6;
   font-family: "Berkeley Mono", "Menlo", monospace;
+}
+
+.blog-items {
+  margin-top: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.blog-item {
+  padding: 6px 10px 6px 10px;
+  margin: -6px -10px -6px -10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blog-item:link, .blog-item:visited {
+  border-bottom: none;
+  color: #11111f;
+}
+
+.blog-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  box-shadow: var(--shadows);
+}
+
+.blog-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.blog-date {
+  color: rgba(0, 0, 0, 0.25);
+  font-size: 12px;
+}
+
+h1:first-child, h2:first-child, h2.aside:first-child, h3:first-child, h4:first-child, h5:first-child, h6:first-child, p:first-child, section:first-child, ul:first-child {
+  margin-top: 0px;
+}
+
+h1:last-child, h2:last-child, h2.aside:last-child, h3:last-child, h4:last-child, h5:last-child, h6:last-child, p:last-child, section:last-child, ul:last-child {
+  margin-bottom: 0px;
 }
 
 /* hide aside when width is less than 900px */
