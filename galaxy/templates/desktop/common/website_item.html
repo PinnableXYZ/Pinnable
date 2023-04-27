@@ -1,0 +1,27 @@
+<div class="website-item">
+  <div class="website-item-top">
+    <div class="website-name">{{ website.name|e }}</div>
+    <div class="website-access">
+      <a class="btn" href="{{ website.url }}" target="_blank">
+        <img src="{{ static_url('img/network.svg') }}" height="16" />
+        <span>Visit</span>
+      </a>
+      <a class="btn" href="/websites/pin/{{ website.id }}">
+        <img src="{{ static_url('img/pin.circle.fill.svg') }}" height="16" />
+        <span>Pin</span>
+      </a>
+    </div>
+  </div>
+  <div class="website-item-details">
+    {% if website.last_known_cid != None %}
+    <div class="item-detail">
+      <span class="item-detail-label">CID</span>
+      <span class="item-detail-content">{{ website.last_known_cid }}</span>
+    </div>
+    {% endif %}
+  </div>
+  <div class="website-item-bottom">
+    <div class="website-info">{{ website.kind }}{% if website.size != None and website.size != 0 %} <span
+        class="dot">·</span> Size: {{ website.size|format_bytes }}{% endif %}</div>
+  </div>
+</div>

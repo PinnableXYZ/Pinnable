@@ -5,6 +5,7 @@ from sqlalchemy import Column, String
 from sqlalchemy.dialects.mysql import BIGINT, DOUBLE, INTEGER
 from sqlalchemy.orm import relationship
 from tornado_sqlalchemy import SQLAlchemy
+from web3 import Web3
 
 from config import database_url
 from galaxy.utils.models import Base
@@ -81,6 +82,10 @@ class Account(Base):
 
         quota["used_size"] = used_size
         return quota
+
+    @property
+    def checksum_address(self):
+        return Web3.to_checksum_address(self.address)
 
 
 class Website(Base):

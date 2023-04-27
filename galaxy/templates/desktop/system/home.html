@@ -5,7 +5,7 @@
 <section>
 
 {% if account %}
-<p>Welcome back, {{ account.address }}</p>
+<p>Welcome back :-) <code>{{ account.checksum_address }}</code></p>
 <div class="flex-one-row">
 <a href="/websites" class="btn">
   <img src="{{ static_url("img/network.svg") }}" height="16" />
@@ -40,42 +40,5 @@
 {% include 'desktop/common/juicebox.html' %}
 {% endblock %}
 {% block aside %}
-<div class="box">
-<h2 class="aside">Latest Blog Posts from Planetable.eth</h2>
-<div class="blog-items">
-</div>
-<script type="text/javascript">
-const blogFeed = "https://planetable.eth.limo/planet.json";
-
-// js function to format Swift timestamp to human-readable date
-function formatDate(timestamp) {
-  const date = new Date((timestamp + 978307200) * 1000);
-  const shortDate = new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-  });
-  const formattedDateString = shortDate.format(date);
-  return formattedDateString;
-}
-
-// Fetch blog feed and iterate over feed['articles']
-// Only show 5 most recent posts
-fetch(blogFeed)
-  .then(response => response.json())
-  .then(data => {
-    console.log(data);
-    const blogItems = document.querySelector('.blog-items');
-    data['articles'].slice(0, 5).forEach(article => {
-      const blogItem = document.createElement('a');
-      blogItem.classList.add('blog-item');
-      blogItem.href = `https://planetable.eth.limo/${article['id']}/`;
-      blogItem.target = '_blank';
-      blogItem.innerHTML = `
-        <div class="blog-title">${article['title']}</div>
-        <div class="blog-date">${formatDate(article['created'])}</div>
-      `;
-      blogItems.appendChild(blogItem);
-    });
-  });
-</script>
-</div>
+{% include 'desktop/common/blog.html' %}
 {% endblock %}

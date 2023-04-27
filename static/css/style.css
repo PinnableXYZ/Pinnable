@@ -29,6 +29,8 @@
     0 2px 3px rgba(0, 0, 0, 0.02),
     0 3px 5px rgba(0, 0, 0, 0.02),
     0 5px 8px rgba(0, 0, 0, 0.02);
+
+  --mono-font-family: 'Berkeley Mono', 'JetBrains Mono', 'Menlo', monospace;
 }
 
 html {
@@ -76,6 +78,10 @@ a.svg-btn:link,
 a.svg-btn:visited {
   text-decoration: none;
   border-bottom: none;
+}
+
+code {
+  font-family: var(--mono-font-family);
 }
 
 h1 {
@@ -162,6 +168,11 @@ nav {
   min-height: calc(100vh - 60px - 1px - 40px - 20px - 1px);
   background-color: transparent;
   padding: 20px 20px 20px 0px;
+}
+
+.nav-inner {
+  position: sticky;
+  top: 81px;
 }
 
 .nav-item:link,
@@ -379,7 +390,7 @@ img.screenshot {
   padding-top: 10px;
   font-size: 12px;
   line-height: 1.6;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
 }
 
 .dot {
@@ -481,7 +492,7 @@ ul:last-child {
 .website-name {
   flex: 1;
   font-size: 16px;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
   word-break: break-all;
   display: flex;
   align-items: center;
@@ -498,7 +509,7 @@ ul:last-child {
   padding: 10px;
   border-bottom: 1px solid var(--box-border-color);
   font-size: 12px;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
 }
 
 .item-details {
@@ -533,7 +544,7 @@ ul:last-child {
 
 .item-detail-content-alt {
   font-size: 14px;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
 }
 
 .website-item-bottom {
@@ -542,7 +553,7 @@ ul:last-child {
 
 .website-info {
   font-size: 12px;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
 }
 
 .sl {
@@ -550,7 +561,7 @@ ul:last-child {
   width: 100%;
   padding: 2px;
   font-size: 16px;
-  font-family: "Berkeley Mono", "Menlo", monospace;
+  font-family: var(--mono-font-family);
 }
 
 .btn {
@@ -584,10 +595,13 @@ ul:last-child {
 
   nav {
     min-height: auto;
+    border-bottom: 1px solid var(--box-border-color);
+  }
+
+  .nav-inner {
     display: flex;
     flex-direction: row;
     gap: 2px;
-    border-bottom: 1px solid var(--box-border-color);
   }
 
   aside {

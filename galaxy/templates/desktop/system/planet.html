@@ -2,93 +2,95 @@
 {% block title %}Planet{% endblock %}
 {% block content %}
 <div class="box">
-    <h1>Planet</h1>
-    <section>
-        <p>Planet is a native macOS application designed for creating and hosting decentralized websites. With this app,
-            you can effortlessly build a blog featuring audio and video content, select from various theme designs, and
-            publish it as an IPNS accessible via the IPFS P2P network or HTTP gateways. Moreover, you can link the IPNS
-            to your ENS, enabling you to host your website on your ENS.</p>
+  <h1>Planet</h1>
+  <section>
+    <p>Planet is a native macOS application designed for creating and hosting decentralized websites. With this app,
+      you can effortlessly build a blog featuring audio and video content, select from various theme designs, and
+      publish it as an IPNS accessible via the IPFS P2P network or HTTP gateways. Moreover, you can link the IPNS
+      to your ENS, enabling you to host your website on your ENS.</p>
 
-        <p>Learn more about the <a href="https://planetable.xyz/" target="_blank">Planet</a> app.</p>
-    </section>
+    <p>Learn more about the <a href="https://planetable.xyz/" target="_blank">Planet</a> app.</p>
+  </section>
 </div>
 
 <div class="box">
-    <h2>Features</h2>
-    <section>
-        <ul>
-            <li>Build a blog and publish it to IPFS</li>
-            <li><a href="https://www.planetable.xyz/guides/local-gateway/" target="_blank">Built-in local IPFS node</a>
-            </li>
-            <li>Generate an IPNS that is ready to be set as <a href="https://eips.ethereum.org/EIPS/eip-1577"
-                    target="_blank">EIP-1577 ENS contenthash</a></li>
-            <li>Pin content when following, make content usable offline</li>
-            <li>Follow the updates of websites running on ENS; NFT avatars as site icons are supported</li>
-            <li>Markdown editor with live preview</li>
-            <li>Attach video, audio, or any format of files; Generate a podcast.xml that is supported by various Podcast
-                client apps</li>
-            <li>Global audio player</li>
-            <li>Star or share posts</li>
-            <li>Template browser for managing and building templates</li>
-            <li>Integration with WorldWideWeb for previewing sites built with Planet</li>
-            <li>Integration with Plausible.io for traffic analytics, example: <a
-                    href="https://plausible.io/planetable.eth.limo" target="_blank">plausible.io/planetable.eth.limo</a>
-            </li>
-            <li>Export/Import website</li>
-            <li>RSS reader, all three formats, RSS, Atom, and JSON Feed, are supported</li>
-            <li>Sandboxed native macOS app created with SwiftUI 3</li>
-        </ul>
-    </section>
+  <h2>Features</h2>
+  <section>
+    <ul>
+      <li>Build a blog and publish it to IPFS</li>
+      <li><a href="https://www.planetable.xyz/guides/local-gateway/" target="_blank">Built-in local IPFS node</a>
+      </li>
+      <li>Generate an IPNS that is ready to be set as <a href="https://eips.ethereum.org/EIPS/eip-1577"
+          target="_blank">EIP-1577 ENS contenthash</a></li>
+      <li>Pin content when following, make content usable offline</li>
+      <li>Follow the updates of websites running on ENS; NFT avatars as site icons are supported</li>
+      <li>Markdown editor with live preview</li>
+      <li>Attach video, audio, or any format of files; Generate a podcast.xml that is supported by various Podcast
+        client apps</li>
+      <li>Global audio player</li>
+      <li>Star or share posts</li>
+      <li>Template browser for managing and building templates</li>
+      <li>Integration with WorldWideWeb for previewing sites built with Planet</li>
+      <li>Integration with Plausible.io for traffic analytics, example: <a
+          href="https://plausible.io/planetable.eth.limo" target="_blank">plausible.io/planetable.eth.limo</a>
+      </li>
+      <li>Export/Import website</li>
+      <li>RSS reader, all three formats, RSS, Atom, and JSON Feed, are supported</li>
+      <li>Sandboxed native macOS app created with SwiftUI 3</li>
+    </ul>
+  </section>
 </div>
 
 <div class="box">
-    <h2>Screenshots</h2>
-    <section>
-        <p>
-        <figure>
-            <picture>
-                <source srcset="{{ static_url("img/planet/planet-light-mode.webp") }}" type="image/webp">
-                <img src="{{ static_url("img/planet/planet-light-mode.png") }}" class="screenshot" loading="lazy" />
-            </picture>
-            <figcaption>Planet: Light Mode with Default Theme<br />
-                Post Link: <a href="https://planetable.eth.limo/68AB46F3-F920-40D6-97FE-CF9C85643632/"
-                    target="_blank">planetable.eth</a></figcaption>
-        </figure>
-        </p>
+  <h2>Screenshots</h2>
+  <section>
+    <p>
+    <figure>
+      <picture>
+        <source srcset="{{ static_url('img/planet/planet-light-mode.webp') }}" type="image/webp">
+        <img src="{{ static_url('img/planet/planet-light-mode.png') }}" class="screenshot" loading="lazy" />
+      </picture>
+      <figcaption>Planet: Light Mode with Default Theme<br />
+        Post Link: <a href="https://planetable.eth.limo/68AB46F3-F920-40D6-97FE-CF9C85643632/"
+          target="_blank">planetable.eth</a></figcaption>
+    </figure>
+    </p>
 
-        <p>
-        <figure>
-            <picture>
-                <source srcset="{{ static_url("img/planet/planet-dark-mode.webp") }}" type="image/webp">
-                <img src="{{ static_url("img/planet/planet-dark-mode.png") }}" class="screenshot" loading="lazy" />
-            </picture>
-            <figcaption>Planet: Dark Mode with a Retro Gaming Theme<br />
-                Post Link: <a href="https://gamedb.eth.limo/C830D5A0-BCC9-4931-A843-6BF5FBF0E5EC/"
-                    target="_blank">gamedb.eth</a></figcaption>
-        </figure>
-        </p>
+    <p>
+    <figure>
+      <picture>
+        <source srcset="{{ static_url('img/planet/planet-dark-mode.webp') }}" type="image/webp">
+        <img src="{{ static_url('img/planet/planet-dark-mode.png') }}" class="screenshot" loading="lazy" />
+      </picture>
+      <figcaption>Planet: Dark Mode with a Retro Gaming Theme<br />
+        Post Link: <a href="https://gamedb.eth.limo/C830D5A0-BCC9-4931-A843-6BF5FBF0E5EC/"
+          target="_blank">gamedb.eth</a></figcaption>
+    </figure>
+    </p>
 
-        <p>
-        <figure>
-            <picture>
-                <source srcset="{{ static_url("img/planet/markdown-editor.webp") }}" type="image/webp">
-                <img src="{{ static_url("img/planet/markdown-editor.png") }}" class="screenshot" loading="lazy" />
-            </picture>
-            <figcaption>Markdown Editor with Live Preview</figcaption>
-        </figure>
-        </p>
+    <p>
+    <figure>
+      <picture>
+        <source srcset="{{ static_url('img/planet/markdown-editor.webp') }}" type="image/webp">
+        <img src="{{ static_url('img/planet/markdown-editor.png') }}" class="screenshot" loading="lazy" />
+      </picture>
+      <figcaption>Markdown Editor with Live Preview</figcaption>
+    </figure>
+    </p>
 
-        <p>
-        <figure>
-            <picture>
-                <source srcset="{{ static_url("img/planet/tipping-with-ethereum.webp") }}" type="image/webp">
-                <img src="{{ static_url("img/planet/tipping-with-ethereum.png") }}" class="screenshot"
-                    loading="lazy" />
-            </picture>
-            <figcaption><a href="https://www.planetable.xyz/guides/walletconnect/" target="_blank">Tipping with
-                    Ethereum</a></figcaption>
-        </figure>
-        </p>
-    </section>
+    <p>
+    <figure>
+      <picture>
+        <source srcset="{{ static_url('img/planet/tipping-with-ethereum.webp') }}" type="image/webp">
+        <img src="{{ static_url('img/planet/tipping-with-ethereum.png') }}" class="screenshot" loading="lazy" />
+      </picture>
+      <figcaption><a href="https://www.planetable.xyz/guides/walletconnect/" target="_blank">Tipping with
+          Ethereum</a></figcaption>
+    </figure>
+    </p>
+  </section>
 </div>
+{% endblock %}
+{% block aside %}
+{% include 'desktop/common/blog.html' %}
 {% endblock %}
