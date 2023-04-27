@@ -17,14 +17,21 @@
 <table cellpadding="0" cellspacing="0" border="0">
 <tr>
 <td width="120">Website Name</td>
-<td width="auto"><input type="text" name="name" value="{{ website_name|e }}" class="sl" placeholder="Please enter an ENS or IPNS" required autofocus /></td>
+<td width="auto"><input type="text" name="name" value="{{ website_name|e }}" class="sl" placeholder="Please enter an ENS or IPNS" required autofocus {% if add_disabled %}disabled{% endif %} /></td>
 </tr>
 </table>
 </section>
 <section>
+{% if add_disabled %}
+<p>You have reached the maximum number of websites. Before you can add more websites, you need to <i class="dwb"></i> <a href="/settings">get more dwb tokens</a>.</p>
+{% else %}
 <input type="submit" value="Submit" class="btn" />
 {{ xsrf_form_html()|safe }}
+{% endif %}
 </section>
 </form>
 </div>
+{% endblock %}
+{% block aside %}
+{% include 'desktop/common/quota.html' %}
 {% endblock %}

@@ -17,11 +17,18 @@ class PinnableWebsitesHandler(WebHandler):
 class PinnableWebsitesAddHandler(WebHandler):
     @authenticated
     def get(self):
+        if not self.current_user.can_add_more:
+            self.values["add_disabled"] = True
+        else:
+            self.values["add_disabled"] = False
         self.values["theme_color"] = "#c5c5c5"
         self.finalize("pinnable/websites_add.html")
 
     @authenticated
     def post(self):
+        if not self.current_user.can_add_more:
+            self.redirect("/websites/add")
+            return
         self.verify_website_name()
         if self.ok():
             self.create_website(self.values["website_name"])
