@@ -10,7 +10,9 @@ from web3 import Web3
 from config import database_url
 from galaxy.utils.models import Base
 
-db = SQLAlchemy(url=database_url)
+engine_options = {"pool_size": 10, "max_overflow": 20, "pool_recycle": 3600}
+
+db = SQLAlchemy(url=database_url, engine_options=engine_options)
 
 ONE_GIGA_BYTE = 1_073_741_824
 

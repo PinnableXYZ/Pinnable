@@ -98,3 +98,6 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
             self._values["errors"] = 0
             self._values["error_messages"] = []
         return self._values
+
+    def on_finish(self):
+        self.session.close()

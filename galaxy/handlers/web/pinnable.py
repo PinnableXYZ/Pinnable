@@ -17,6 +17,7 @@ class PinnableWebsitesHandler(WebHandler):
 class PinnableWebsitesAddHandler(WebHandler):
     @authenticated
     def get(self):
+        self.values["theme_color"] = "#c5c5c5"
         self.finalize("pinnable/websites_add.html")
 
     @authenticated
@@ -26,6 +27,7 @@ class PinnableWebsitesAddHandler(WebHandler):
             self.create_website(self.values["website_name"])
             self.redirect("/websites")
         else:
+            self.values["theme_color"] = "#c5c5c5"
             self.finalize("pinnable/websites_add.html")
 
 
