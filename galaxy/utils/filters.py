@@ -7,17 +7,17 @@ def format_genre(genre: str) -> str:
 
 
 def format_bytes(value: int) -> str:
-    value = float(value)
-    if value > 1024:
-        if value > 1048576:
-            if value > 1073741824:
-                return "%(value).2f GB" % {"value": (value / 1073741824.0)}
+    val = float(value)
+    if val > 1024:
+        if val > 1048576:
+            if val > 1073741824:
+                return "%(value).2f GB" % {"value": (val / 1073741824.0)}
             else:
-                return "%(value).2f MB" % {"value": (value / 1048576.0)}
+                return "%(value).2f MB" % {"value": (val / 1048576.0)}
         else:
-            return "%(value).2f KB" % {"value": (value / 1024.0)}
+            return "%(value).2f KB" % {"value": (val / 1024.0)}
     else:
-        return str(int(value)) + " B"
+        return str(value) + " B"
 
 
 def format_tokens(value: float) -> str:

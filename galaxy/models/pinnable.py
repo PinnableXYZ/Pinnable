@@ -1,8 +1,8 @@
 import math
 
 import sqlalchemy as sa
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.dialects.mysql import BIGINT, CHAR, DOUBLE, INTEGER, TEXT, TINYINT
+from sqlalchemy import Column, String
+from sqlalchemy.dialects.mysql import BIGINT, DOUBLE, INTEGER
 from sqlalchemy.orm import relationship
 from tornado_sqlalchemy import SQLAlchemy
 
@@ -15,6 +15,7 @@ ONE_GIGA_BYTE = 1_073_741_824
 
 
 class Account(Base):
+    __tablename__ = "Account"
     __table_arts__ = (
         sa.Index("address", "address", unique=True),
         {"comment": "Account"},
@@ -33,8 +34,9 @@ class Account(Base):
 
     @property
     def quota(self) -> dict:
-        if hasattr(self, "_quota"):
-            return self._quota
+        _quota = getattr(self, "_quota", None)
+        if _quota is not None:
+            return _quota
 
         quota = {}
         quota["total_websites"] = 0
@@ -62,7 +64,7 @@ class Account(Base):
         quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
 
         self._quota = quota
-        return self._quota
+        return quota
 
     @property
     def used_quota(self) -> dict:
@@ -82,6 +84,7 @@ class Account(Base):
 
 
 class Website(Base):
+    __tablename__ = "Website"
     __table_arts__ = (
         sa.Index("account_name", "account_id", "name", unique=True),
         sa.Index("account_id", "account_id"),

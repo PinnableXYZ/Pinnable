@@ -5,6 +5,6 @@ pylibmc==1.6.3
 redis==4.5.4
 rq==1.13.0
 siwe==2.2.0
-tornado==6.2
 tornado-sqlalchemy==0.7.0
+tornado==6.2
 web3==6.0.0

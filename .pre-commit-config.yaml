@@ -11,10 +11,6 @@ repos:
       - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
-        exclude: |
-          (?x)(
-              ^alembic/
-          )
       - id: trailing-whitespace
         exclude: |
           (?x)(
@@ -33,15 +29,14 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
-        exclude: |
-          (?x)(
-              ^alembic/
-          )
+        language_version: python3.11
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.2.0
     hooks:
       - id: mypy
+        verbose: true
+        additional_dependencies: ['types-requests', 'types-redis']
 
   - repo: https://github.com/pycqa/flake8
     rev: 6.0.0

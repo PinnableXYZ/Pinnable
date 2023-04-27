@@ -27,8 +27,8 @@ class SystemAuthHandler(WebHandler):
             try:
                 siwe_message: SiweMessage = SiweMessage(message=message)
                 siwe_message.verify(signature)
-            except:
-                self.values["error"] = "Authentication failed"
+            except Exception as e:
+                self.values["error"] = "Authentication failed: " + str(e)
             if hasattr(siwe_message, "expiration_time"):
                 expiration = siwe_message.expiration_time
                 dt = datetime.strptime(expiration, "%Y-%m-%dT%H:%M:%S.%fZ")

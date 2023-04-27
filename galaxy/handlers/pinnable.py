@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+import time
 
 import pylibmc
 import redis
@@ -16,7 +17,6 @@ class PinnableMixin(object):
     mc: pylibmc.Client
     r: redis.Redis
     current_user: Account
-    now: int
 
     def get_account(self, address: str):
         account = (
@@ -27,7 +27,7 @@ class PinnableMixin(object):
         return account
 
     def create_account(self, address: str):
-        account = Account(address=address.lower(), created=self.now())
+        account = Account(address=address.lower(), created=int(time.time()))
         self.session.add(account)
         self.session.commit()
         return account
@@ -77,7 +77,7 @@ class PinnableMixin(object):
 
     def create_website(self, name: str):
         website = Website(
-            account_id=self.current_user.id, name=name, created=self.now()
+            account_id=self.current_user.id, name=name, created=int(time.time())
         )
         self.session.add(website)
         self.session.commit()

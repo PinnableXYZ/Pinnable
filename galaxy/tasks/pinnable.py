@@ -65,6 +65,7 @@ def check_account(account_id: int):
         account.last_checked = int(time.time())
         session.commit()
     except Exception as e:
+        print(e)
         print(f"Failed to check token balance for address {eth_address}")
 
     session.close()
@@ -79,7 +80,7 @@ def check_website(website_id: int):
         return
     if website.kind == "ENS":
         # Try resolve the ENS name with IPFS API
-        api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"
+        api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"  # noqa
         print(f"POST: {api_request}")
         try:
             resp = requests.post(api_request, timeout=30)
@@ -109,7 +110,9 @@ def check_website(website_id: int):
                     website.size = data["CumulativeSize"]
                     website.last_checked = int(time.time())
                     session.commit()
-                    print(f"Size of {website.name} / {website.last_known_cid}: {website.size}")
+                    print(
+                        f"Size of {website.name} / {website.last_known_cid}: {website.size}"  # noqa
+                    )
         except Exception as e:
             print(e)
     session.close()
