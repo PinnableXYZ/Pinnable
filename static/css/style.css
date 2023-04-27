@@ -137,7 +137,6 @@ p {
 .top-container {
   background-color: var(--color-theme);
   border-bottom: var(--box-border);
-  padding: 0px var(--desktop-side-padding) 0px var(--desktop-side-padding);
   position: sticky;
   top: 0px;
   z-index: 99;
@@ -152,15 +151,20 @@ header {
   background-color: transparent;
   margin: 0px auto 0px auto;
   max-width: var(--desktop-max-width);
+  padding: 0px calc(var(--desktop-side-padding) + env(safe-area-inset-right)) 0px calc(var(--desktop-side-padding) + env(safe-area-inset-left));
   display: flex;
   height: 60px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .main-container {
-  padding: 0px var(--desktop-side-padding) 0px var(--desktop-side-padding);
+  padding: 0px calc(var(--desktop-side-padding) + env(safe-area-inset-right)) 0px calc(var(--desktop-side-padding) + env(safe-area-inset-left));
   margin: 0px auto 0px auto;
   max-width: var(--desktop-max-width);
   display: flex;
+  box-sizing: border-box;
 }
 
 nav {

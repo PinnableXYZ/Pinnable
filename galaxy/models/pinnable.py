@@ -42,6 +42,8 @@ class Account(Base):
         quota = {}
         quota["total_websites"] = 0
         quota["total_size"] = 0
+        quota["used_websites"] = 0
+        quota["used_size"] = 0
 
         if self.dwb_balance == 0:
             return quota
@@ -64,15 +66,6 @@ class Account(Base):
         quota["total_websites"] = math.ceil(self.dwb_balance / 10)
         quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
 
-        self._quota = quota
-        return quota
-
-    @property
-    def used_quota(self) -> dict:
-        quota = {}
-        quota["used_websites"] = 0
-        quota["used_size"] = 0
-
         quota["used_websites"] = len(self.websites)
 
         used_size = 0
@@ -81,11 +74,21 @@ class Account(Base):
             used_size = used_size + website.size
 
         quota["used_size"] = used_size
+
+        self._quota = quota
         return quota
 
     @property
     def checksum_address(self):
         return Web3.to_checksum_address(self.address)
+
+    @property
+    def can_add_more(self) -> bool:
+        if self.quota["total_websites"] == 0:
+            return False
+        if self.quota["used_websites"] >= self.quota["total_websites"]:
+            return False
+        return True
 
 
 class Website(Base):

@@ -12,12 +12,12 @@
   <div class="item-details">
     <div class="item-detail">
       <span class="item-detail-label-alt">Websites</span>
-      <span class="item-detail-content">{{ account.used_quota['used_websites']}} / {{ account.quota['total_websites']
+      <span class="item-detail-content">{{ account.quota['used_websites']}} / {{ account.quota['total_websites']
         }}</span>
     </div>
     <div class="item-detail">
       <span class="item-detail-label-alt">Storage</span>
-      <span class="item-detail-content-alt">{{ account.used_quota['used_size']|format_bytes }} / {{
+      <span class="item-detail-content-alt">{{ account.quota['used_size']|format_bytes }} / {{
         account.quota['total_size']|format_bytes }}</span>
     </div>
   </div>

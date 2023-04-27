@@ -3,10 +3,18 @@
 <div class="box">
   <h1>Websites</h1>
 
+  {% if account.can_add_more %}
   <a href="/websites/add" class="btn">
     <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
     <span>Add Website</span>
   </a>
+  {% else %}
+  {% if account.dwb_balance == 0 %}
+  Before you can add a website, you need to <i class="dwb"></i> <a href="/pricing">get some dwb tokens</a>.
+  {% else %}
+  To add more website, you need to <i class="dwb"></i> <a href="/pricing">get more dwb tokens</a>.
+  {% endif %}
+  {% endif %}
 </div>
 <div class="box" id="websites">
   {% for website in websites %}

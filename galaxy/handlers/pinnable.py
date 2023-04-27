@@ -27,7 +27,9 @@ class PinnableMixin(object):
         return account
 
     def create_account(self, address: str):
-        account = Account(address=address.lower(), created=int(time.time()))
+        account = Account()
+        account.address = address.lower()
+        account.created = int(time.time())
         self.session.add(account)
         self.session.commit()
         return account
@@ -76,9 +78,10 @@ class PinnableMixin(object):
         return website
 
     def create_website(self, name: str):
-        website = Website(
-            account_id=self.current_user.id, name=name, created=int(time.time())
-        )
+        website = Website()
+        website.account_id = self.current_user.id
+        website.name = name
+        website.created = int(time.time())
         self.session.add(website)
         self.session.commit()
         return website
