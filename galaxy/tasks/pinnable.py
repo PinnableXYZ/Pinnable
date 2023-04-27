@@ -109,6 +109,7 @@ def check_website(website_id: int):
                     website.size = data["CumulativeSize"]
                     website.last_checked = int(time.time())
                     session.commit()
+                    print(f"Size of {website.name} / {website.last_known_cid}: {website.size}")
         except Exception as e:
             print(e)
     session.close()
