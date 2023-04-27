@@ -1,0 +1,30 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block content %}
+<div class="box">
+<h1>Websites</h1>
+<h2>Add Website</h2>
+</div>
+<div class="box">
+{% if errors > 0 %}
+<ul>
+{% for error in error_messages %}
+<li>{{ error }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+<form method="post" action="/websites/add">
+<section>
+<table cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td width="120">Website Name</td>
+<td width="auto"><input type="text" name="name" value="{{ website_name|e }}" class="sl" placeholder="Please enter an ENS or IPNS" required /></td>
+</tr>
+</table>
+</section>
+<section>
+<input type="submit" value="Submit" class="btn" />
+{{ xsrf_form_html()|safe }}
+</section>
+</form>
+</div>
+{% endblock %}

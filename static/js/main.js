@@ -30,6 +30,11 @@ async function doSIWE() {
 
     const issuedAt = new Date().toISOString();
 
+    // Expire in 7 days
+    let expirationTime = new Date();
+    expirationTime.setDate(expirationTime.getDate() + 7);
+    expirationTime = expirationTime.toISOString();
+
     const messageTemplate = `${domain} wants you to sign in with your Ethereum account:
 ${address}
 
@@ -39,10 +44,28 @@ URI: ${origin}
 Version: ${version}
 Chain ID: ${chainId}
 Nonce: ${nonce}
-Issued At: ${issuedAt}`
+Issued At: ${issuedAt}
+Expiration Time: ${expirationTime}`;
 
     // sign the message
     const signature = await signer.signMessage(messageTemplate);
 
-    console.log(signature);
+    if (signature) {
+        const form = document.getElementById('siwe-form');
+        const messageInput = form.querySelector(`input[name="message"]`);
+        const signatureInput = form.querySelector(`input[name="signature"]`);;
+        messageInput.value = messageTemplate;
+        signatureInput.value = signature;
+        form.submit();
+    }
+
+}
+
+function signout() {
+    const form = document.getElementById('signout');
+    if (form) {
+        if (confirm('Are you sure you want to sign out?')) {
+            form.submit();
+        }
+    }
 }

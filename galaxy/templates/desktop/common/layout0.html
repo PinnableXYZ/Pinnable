@@ -25,6 +25,9 @@
 <div class="main-container">
   <nav>
     <a class="nav-item" href="/">Home</a>
+    {% if account %}
+    <a class="nav-item" href="/websites">Websites</a>
+    {% endif %}
     <a class="nav-item" href="/pricing">Pricing</a>
     <a class="nav-item" href="/planet">Planet</a>
   </nav>
@@ -41,5 +44,10 @@
 <div class="bottom-container">
   <footer></footer>
 </div>
+{% if account %}
+<form method="post" action="/signout" id="signout">
+{{ xsrf_form_html()|safe }}
+</form>
+{% endif %}
 </body>
 </html>

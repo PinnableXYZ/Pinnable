@@ -12,10 +12,11 @@ import tornado.web
 from jinja2 import Environment, PackageLoader
 from loguru import logger
 from tornado.options import define, options
+from tornado_sqlalchemy import SQLAlchemy
 
 import config
-from galaxy.utils.filters import format_genre
 from galaxy.handlers.web.system import System404Handler
+from galaxy.utils.filters import format_bytes, format_tokens
 
 define("port", default=12345, help="run on the given port", type=int)
 
@@ -24,13 +25,14 @@ def build_handlers():
     from galaxy.handlers.web.pinnable import pinnable_handlers
     from galaxy.handlers.web.system import system_handlers
 
-    return system_handlers + pinnable_handlers
+    return pinnable_handlers + system_handlers + [(r"/(.*)$", System404Handler)]
 
 
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = build_handlers()
         settings = {
+            "db": SQLAlchemy(config.database_url),
             "site_title": "Pinnable",
             "static_path": os.path.join(os.path.dirname(__file__), "static"),
             "xsrf_cookies": True,
@@ -44,7 +46,8 @@ class Application(tornado.web.Application):
             extensions=["jinja2.ext.i18n"],
             autoescape=True,
         )
-        self.env.filters["format_genre"] = format_genre
+        self.env.filters["format_bytes"] = format_bytes
+        self.env.filters["format_tokens"] = format_tokens
         self.mc = pylibmc.Client(
             [config.memcached_host],
             binary=True,

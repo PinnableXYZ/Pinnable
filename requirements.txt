@@ -1,5 +1,7 @@
 Jinja2==3.1.2
-pylibmc==1.6.3
-tornado==6.2
-redis==4.5.4
 loguru==0.6.0
+pylibmc==1.6.3
+redis==4.5.4
+siwe==2.2.0
+tornado==6.2
+web3==6.0.0

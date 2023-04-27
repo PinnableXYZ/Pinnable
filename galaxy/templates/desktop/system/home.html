@@ -3,9 +3,28 @@
 <div class="box">
 <h1>Welcome to Pinnable</h1>
 <section>
+
+{% if account %}
+<p>Welcome back, {{ account.address }}</p>
+<div class="flex-one-row">
+<a href="/websites" class="btn">
+  <img src="{{ static_url("img/network.svg") }}" height="16" />
+  <span>Manage My Websites</span>
+</a>
+<a href="#;" onclick="signout()" class="btn">
+  <span>Sign Out</span>
+</a>
+</div>
+{% else %}
 <p>We are building open-source software and infrastructure for pinning decentralized websites running on IPFS and ENS.</p>
 
-<a href="javascript:doSIWE();" class="btn-siwe">Sign in with Ethereum</a>
+<a href="javascript:doSIWE();" class="svg-btn"><img src="{{ static_url("img/siwe.svg") }}" border="0" alt="Sign in with Ethereum" class="btn-siwe" /></a>
+<form method="post" action="/auth" id="siwe-form">
+  <input type="hidden" name="signature" id="siwe-signature" value="">
+  <input type="hidden" name="message" id="siwe-message" value="">
+  {{ xsrf_form_html()|safe }}
+</form>
+{% endif %}
 </section>
 </div>
 
@@ -49,7 +68,7 @@ fetch(blogFeed)
       const blogItem = document.createElement('a');
       blogItem.classList.add('blog-item');
       blogItem.href = `https://planetable.eth.limo/${article['id']}/`;
-      blogItem.target = '_blank'; 
+      blogItem.target = '_blank';
       blogItem.innerHTML = `
         <div class="blog-title">${article['title']}</div>
         <div class="blog-date">${formatDate(article['created'])}</div>

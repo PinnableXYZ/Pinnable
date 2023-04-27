@@ -28,4 +28,4 @@ class Base(object):
     )
 
     created = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
-    last_modified = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
+    last_modified = Column(INTEGER(display_width=10, unsigned=True), nullable=True)

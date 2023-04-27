@@ -5,22 +5,29 @@ import datetime
 import re
 
 import tornado.web
+from rq import Queue
+from tornado_sqlalchemy import SessionMixin
 
-import config
 from galaxy.handlers.pinnable import PinnableMixin
 
 
-class BaseHandler(tornado.web.RequestHandler, PinnableMixin):
+class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def now(self):
         return int(calendar.timegm(datetime.datetime.utcnow().timetuple()))
 
     @property
     def mc(self):
         return self.application.mc
-    
+
     @property
     def r(self):
         return self.application.r
+
+    @property
+    def q(self):
+        if not hasattr(self, "_q"):
+            self._q = Queue("pinnable", connection=self.r, default_timeout=1800)
+        return self._q
 
     @property
     def env(self):
@@ -55,9 +62,39 @@ class BaseHandler(tornado.web.RequestHandler, PinnableMixin):
         else:
             return False
 
+    def get_current_user(self):
+        cookie = self.get_secure_cookie("pinnable")
+        if cookie:
+            cookie = cookie.decode("utf-8")
+            cookie = cookie.split(":")
+            if len(cookie) == 3:
+                if cookie[0] == "pinnable":
+                    address = cookie[1]
+                    expiration = int(cookie[2])
+                    if expiration > self.now():
+                        account = self.get_account(address)
+                        if account:
+                            return account
+                        else:
+                            account = self.create_account(address)
+                            return account
+        return None
+
+    def add_error(self, problem: str):
+        self.values["errors"] += 1
+        if problem is not None:
+            self.values["error_messages"].append(problem)
+
+    def ok(self):
+        return self.values["errors"] == 0
+
     @property
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
             self._values["static_url"] = self.static_url
+            self._values["xsrf_form_html"] = self.xsrf_form_html
+            self._values["account"] = self.current_user
+            self._values["errors"] = 0
+            self._values["error_messages"] = []
         return self._values
