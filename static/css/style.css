@@ -161,6 +161,31 @@ header {
   box-sizing: border-box;
 }
 
+.account-badge {
+  padding: 4px 8px 4px 4px;
+  border-radius: 5px;
+  transition: box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out;
+  font-family: var(--mono-font-family);
+  font-size: 14px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  line-height: 1;
+}
+
+.account-avatar {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+}
+
+.account-badge:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadows);
+  cursor: pointer;
+}
+
 .main-container {
   padding: 0px calc(var(--desktop-side-padding) + env(safe-area-inset-right)) 0px calc(var(--desktop-side-padding) + env(safe-area-inset-left));
   margin: 0px auto 0px auto;
@@ -641,6 +666,10 @@ ul:last-child {
 
 .br4 {
   border-radius: 4px;
+}
+
+.spacer {
+  flex: 1;
 }
 
 .secondary {

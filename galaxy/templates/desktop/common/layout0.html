@@ -28,6 +28,13 @@
     <header>
       <a href="/" class="logo"><img src="{{ static_url('img/pinnable.svg') }}" alt="Pinnable" height="32" border="0"
           style="vertical-align: bottom;"></a>
+      {% if account %}
+      <div class="spacer"></div>
+      <div class="account-badge" onclick="location.href='/profile'">
+        <div class="account-avatar"></div>
+        <div class="account-name">{{ account.display_name }}</div>
+      </div>
+      {% endif %}
     </header>
   </div>
   <div class="main-wrapper">

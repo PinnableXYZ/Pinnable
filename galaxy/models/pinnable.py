@@ -36,6 +36,10 @@ class Account(Base):
     )
 
     @property
+    def display_name(self) -> str:
+        return self.address[:6] + "..." + self.address[-4:]
+
+    @property
     def quota(self) -> dict:
         _quota = getattr(self, "_quota", None)
         if _quota is not None:
