@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from tornado_sqlalchemy import SQLAlchemy
 from web3 import Web3
 
-from config import database_url
+from config import database_url, ipfs_gateway
 from galaxy.utils.models import Base
 
 engine_options = {"pool_size": 10, "max_overflow": 20, "pool_recycle": 3600}
@@ -112,6 +112,12 @@ class Website(Base):
     size = Column(BIGINT(unsigned=True), nullable=True, default=0)
     last_checked = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
     last_pinned = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
+    tasklogs = relationship(
+        "WebsiteTaskLog",
+        back_populates="website",
+        primaryjoin="Website.id == foreign(WebsiteTaskLog.website_id)",
+        order_by="desc(WebsiteTaskLog.created)",
+    )
 
     @property
     def kind(self):
@@ -125,9 +131,9 @@ class Website(Base):
     @property
     def url(self):
         if self.kind == "ENS":
-            return f"https://{self.name}.limo"
+            return f"{ipfs_gateway}/ipns/{self.name}"
         elif self.kind == "IPNS":
-            return f"https://ipfs.io/ipns/{self.name}"
+            return f"{ipfs_gateway}/ipns/{self.name}"
         else:
             return None
 
@@ -139,3 +145,21 @@ class Website(Base):
             return f"/ipns/{self.name}"
         else:
             return None
+
+
+class WebsiteTaskLog(Base):
+    __tablename__ = "WebsiteTaskLog"
+    __table_arts__ = (
+        sa.Index("website_id", "website_id"),
+        {"comment": "Website Task Log"},
+    )
+    website_id = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
+    website = relationship(
+        "Website",
+        back_populates="tasklogs",
+        primaryjoin="Website.id == foreign(WebsiteTaskLog.website_id)",
+    )
+    event = Column(String(4000), nullable=False)
+    icon = Column(String(128), nullable=True)
+    ipns = Column(String(128), nullable=True)
+    cid = Column(String(128), nullable=True)

@@ -2,16 +2,20 @@
 
 import time
 
+import redis
 import requests
+from rq import Queue
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from web3 import Web3
 
 import config
-from galaxy.models.pinnable import Account, Website
+from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
 
 engine = create_engine(config.database_url, pool_size=20, max_overflow=40)
 Session = scoped_session(sessionmaker(bind=engine))
+r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
+q = Queue("pinnable", connection=r, default_timeout=1800)
 
 
 def check_account(account_id: int):
@@ -90,11 +94,39 @@ def check_website(website_id: int):
                     path = data["Path"]
                     print(f"Resolved ENS name {website.name} to IPFS path: {path}")
                     if path.startswith("/ipns/"):
-                        website.last_known_ipns = path[6:]
+                        if website.last_known_ipns != path[6:]:
+                            tasklog = WebsiteTaskLog()
+                            tasklog.website_id = website.id
+                            tasklog.event = "Resolved to IPNS"
+                            tasklog.icon = "network"
+                            tasklog.ipns = path[6:]
+                            tasklog.created = int(time.time())
+                            session.add(tasklog)
+
+                            website.last_known_ipns = path[6:]
                         website.last_checked = int(time.time())
                     session.commit()
+                    if website.last_pinned is None:
+                        # Pin the website
+                        q.enqueue(pin_website, website.id)
                 else:
+                    tasklog = WebsiteTaskLog()
+                    tasklog.website_id = website.id
+                    tasklog.event = f"Failed to resolve ENS name: {website.name}"
+                    tasklog.icon = "questionmark.circle.fill"
+                    tasklog.created = int(time.time())
+                    session.add(tasklog)
+                    session.commit()
                     print(f"Failed to resolve ENS name: {website.name}")
+            else:
+                tasklog = WebsiteTaskLog()
+                tasklog.website_id = website.id
+                tasklog.event = f"Failed to resolve ENS name: {website.name}"
+                tasklog.icon = "questionmark.circle.fill"
+                tasklog.created = int(time.time())
+                session.add(tasklog)
+                session.commit()
+                print(f"Failed to resolve ENS name: {website.name}")
         except Exception as e:
             print(e)
     if website.last_known_cid is not None:
@@ -134,9 +166,25 @@ def pin_website(website_id: int):
             if "Pins" in data:
                 # Website is pinned
                 cid = data["Pins"][0]
-                website.last_known_cid = cid
-                website.last_pinned = int(time.time())
+                if website.last_known_cid != cid:
+                    tasklog = WebsiteTaskLog()
+                    tasklog.website_id = website.id
+                    tasklog.event = "Pinned"
+                    tasklog.icon = "checkmark.circle.fill"
+                    tasklog.cid = cid
+                    tasklog.created = int(time.time())
+                    session.add(tasklog)
+
+                    website.last_known_cid = cid
+                    website.last_pinned = int(time.time())
                 session.commit()
+                stat_request = f"{config.ipfs_server}/api/v0/files/stat?arg=/ipfs/{website.last_known_cid}"  # noqa
+                resp = requests.post(stat_request, timeout=30)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if "CumulativeSize" in data:
+                        website.size = data["CumulativeSize"]
+                        session.commit()
             else:
                 # Not pinned
                 pass

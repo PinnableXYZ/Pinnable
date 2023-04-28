@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import json
+
 from tornado.web import authenticated
 
 from galaxy.handlers.web import WebHandler
@@ -31,11 +33,34 @@ class PinnableWebsitesAddHandler(WebHandler):
             return
         self.verify_website_name()
         if self.ok():
-            self.create_website(self.values["website_name"])
-            self.redirect("/websites")
+            website = self.create_website(self.values["website_name"])
+            self.q.enqueue(check_website, website.id)
+            self.redirect(f"/websites/{website.id}")
         else:
             self.values["theme_color"] = "#c5c5c5"
             self.finalize("pinnable/websites_add.html")
+
+
+class PinnableWebsitesInfoHandler(WebHandler):
+    @authenticated
+    def get(self, website_id):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.values["website"] = website
+            self.values["theme_color"] = "#c5c5c5"
+            self.finalize("pinnable/websites_info.html")
+        else:
+            self.redirect("/websites")
+
+
+class PinnableWebsitesInfoJSONHandler(WebHandler):
+    @authenticated
+    def get(self, website_id):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.write(json.dumps(website.to_dict()))
+        else:
+            self.set_status(404)
 
 
 class PinnableWebsitesPinHandler(WebHandler):
@@ -50,8 +75,23 @@ class PinnableWebsitesPinHandler(WebHandler):
             self.q.enqueue(pin_website, website.id)
 
 
+class PinnableWebsitesRemoveHandler(WebHandler):
+    @authenticated
+    def post(self, website_id):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.delete_website_tasklogs_by_website_id(website.id)
+            self.delete_website_by_id(website.id)
+            self.redirect("/websites")
+        else:
+            self.redirect("/websites")
+
+
 pinnable_handlers = [
     (r"/websites/?$", PinnableWebsitesHandler),
+    (r"/websites/([0-9]+)/?$", PinnableWebsitesInfoHandler),
+    (r"/websites/([0-9]+).json$", PinnableWebsitesInfoJSONHandler),
+    (r"/websites/remove/([0-9]+)/?$", PinnableWebsitesRemoveHandler),
     (r"/websites/add/?$", PinnableWebsitesAddHandler),
     (r"/websites/pin/([0-9]+)?$", PinnableWebsitesPinHandler),
 ]

@@ -1,8 +1,8 @@
 {% extends 'desktop/common/layout0.html' %}
 {% block content %}
+{{ breadcrumb(['Websites:/websites', 'Add Website:/websites/add'])|safe }}
 <div class="box">
-<h1>Websites</h1>
-<h2>Add Website</h2>
+<h1>Add Website</h1>
 </div>
 <div class="box">
 {% if errors > 0 %}

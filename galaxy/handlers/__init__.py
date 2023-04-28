@@ -92,11 +92,14 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
+            self._values["str"] = str
+            self._values["breadcrumb"] = self.breadcrumb
             self._values["static_url"] = self.static_url
             self._values["xsrf_form_html"] = self.xsrf_form_html
             self._values["account"] = self.current_user
             self._values["errors"] = 0
             self._values["error_messages"] = []
+            self._values["request"] = self.request
         return self._values
 
     def on_finish(self):

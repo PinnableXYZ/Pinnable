@@ -1,0 +1,44 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block content %}
+{{ breadcrumb(['Websites:/websites', website.name + ':/websites/' + str(website.id)])|safe }}
+<div class="box">
+<section>
+{% include 'desktop/common/website_item.html' %}
+</section>
+<section>
+<div class="flex-one-row">
+<a class="btn" href="/websites/pin/{{ website.id }}">
+  <img src="{{ static_url('img/pin.circle.fill.svg') }}" height="16" />
+  <span>Pin</span>
+</a>
+<a href="javascript:removeWebsite({{ website.id }})" class="btn">
+  <img src="{{ static_url('img/minus.circle.fill.svg')}}" height="16" alt="Remove" />
+  <span>Remove</span>
+</a>
+</div>
+</section>
+</div>
+<div class="box">
+<h2 class="aside">Task Logs</h2>
+<section id="tasklog-items">
+{% for item in website.tasklogs %}
+<div class="tasklog-item">
+  <div class="tasklog-item-top{% if item.cid == None or item.ipns == None %} br4{% endif %}">
+    <img src="{{ static_url('img/' + item.icon + '.svg') }}" height="16" />
+    <div class="tasklog-item-event">{{ item.event }}</div>
+    <div class="tasklog-item-time">{{ item.humanize_time(item.created) }}</div>
+  </div>
+  {% if item.cid != None or item.ipns != None %}
+  <div class="tasklog-item-bottom">
+    {% if item.cid %}CID: {{ item.cid }}{% endif %}
+    {% if item.ipns %}IPNS: {{ item.ipns }}{% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+</section>
+</div>
+<form method="post" action="/websites/remove/{{ website.id}}" id="remove-website-{{ website.id }}">
+{{ xsrf_form_html()|safe }}
+</form>
+{% endblock %}

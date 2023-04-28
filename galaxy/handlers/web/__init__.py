@@ -7,6 +7,21 @@ from galaxy.handlers import BaseHandler
 
 
 class WebHandler(BaseHandler):
+    def breadcrumb(self, paths):
+        o = '<div id="breadcrumb">'
+        i = 0
+        for path in paths:
+            if ":" in path:
+                parts = path.split(":")
+                o = o + '<a href="' + parts[1] + '">' + parts[0] + "</a>"
+            else:
+                o = o + "<span>" + path + "</span>"
+            i = i + 1
+            if i < len(paths):
+                o = o + '<i class="chevron-right"></i> '
+        o = o + "</div>"
+        return o
+
     def finalize(
         self, template_name, write_static=False, static_key="", output_string=False
     ):

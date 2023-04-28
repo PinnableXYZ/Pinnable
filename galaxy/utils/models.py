@@ -1,3 +1,4 @@
+import arrow
 from sqlalchemy import Column, inspect
 from sqlalchemy.dialects.mysql import INTEGER
 from sqlalchemy.ext.declarative import as_declarative
@@ -15,6 +16,19 @@ class Base(object):
             pk = ", ".join(str(value) for value in identity)
 
         return f"<{type(self).__name__} {pk}>"
+
+    def to_dict(self):
+        d = {}
+        for column in self.__table__.columns:
+            field = getattr(self, column.name)
+            if field is not None:
+                d[column.name] = field
+            else:
+                d[column.name] = None
+        return d
+
+    def humanize_time(self, ts, tz="US/Pacific"):
+        return arrow.get(ts).to(tz).format("h:mm A · MMM D, YYYY ZZZ")
 
     id = Column(
         INTEGER(display_width=10, unsigned=True),

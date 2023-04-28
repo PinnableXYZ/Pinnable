@@ -7,7 +7,7 @@ import pylibmc
 import redis
 import sqlalchemy
 
-from galaxy.models.pinnable import Account, Website
+from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
 
 IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
 
@@ -85,3 +85,17 @@ class PinnableMixin(object):
         self.session.add(website)
         self.session.commit()
         return website
+
+    def delete_website_by_id(self, website_id: int) -> bool:
+        website = self.get_website_by_id(website_id)
+        if website:
+            self.session.delete(website)
+            self.session.commit()
+            return True
+        return False
+
+    def delete_website_tasklogs_by_website_id(self, website_id: int):
+        self.session.query(WebsiteTaskLog).filter(
+            WebsiteTaskLog.website_id == website_id
+        ).delete()
+        self.session.commit()

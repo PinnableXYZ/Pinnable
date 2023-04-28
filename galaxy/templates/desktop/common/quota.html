@@ -22,11 +22,13 @@
     </div>
   </div>
 </div>
+{% if request.uri != '/pricing' %}
 <div class="box" style="text-align: center;">
   <a href="/pricing" class="btn" target="_blank">
     <img src="{{ static_url('img/externaldrive.badge.plus.svg') }}" height="16" align="absmiddle" />
     <span>Get More Storage</span>
   </a>
 </div>
+{% endif %}
 </div>
 {% endif %}
