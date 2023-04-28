@@ -1,4 +1,52 @@
 {% extends 'desktop/common/layout0.html' %}
+{% block dom_ready %}
+const source = new EventSource('/websites/{{ website.id }}/logs');
+source.onmessage = function(message) {
+  console.log(message.data);
+
+  let logs = document.getElementById("tasklog-items");
+  const template = document.querySelector('#tasklog-item-template');
+  let item = template.content.cloneNode(true);
+
+  let icon = item.querySelector(".tasklog-item-icon");
+  let event = item.querySelector(".tasklog-item-event");
+  let time = item.querySelector(".tasklog-item-time");
+  let bottom = item.querySelector(".tasklog-item-bottom");
+
+  let data = JSON.parse(message.data);
+  icon.src = '/static/img/' + data['icon'] + '.svg';
+  event.innerHTML = data['event'];
+  time.innerHTML = formatTimestamp(data['created']);
+
+  if (data['cid'] != null || data['ipns'] != null) {
+    if (data['cid'] != null) {
+      bottom.innerHTML = 'CID: ' + data['cid'];
+
+      const detailTemplate = document.querySelector('#website-item-detail');
+      let detail = detailTemplate.content.cloneNode(true);
+      let label = detail.querySelector(".item-detail-label");
+      let content = detail.querySelector(".item-detail-content");
+      label.innerHTML = 'CID';
+      content.innerHTML = data['cid'];
+
+      const websiteItemDetails = document.querySelector('#website-item-details-{{ website.id }}');
+      // detail becomes the only child of websiteItemDetails
+      websiteItemDetails.innerHTML = '';
+      websiteItemDetails.appendChild(detail);
+
+      const websiteInfo = document.querySelector('#website-info-{{ website.id }}');
+      if (data['size'] != null) {
+        websiteInfo.innerHTML = '{{ website.kind }} <span class="dot">·</span> Size: ' + formatBytes(data['size']);
+      }
+    }
+    if (data['ipns'] != null) {
+      bottom.innerHTML = 'IPNS: ' + data['ipns'];
+    }
+  }
+
+  logs.insertBefore(item, logs.firstChild);
+};
+{% endblock %}
 {% block content %}
 {{ breadcrumb(['Websites:/websites', website.name + ':/websites/' + str(website.id)])|safe }}
 <div class="box">
@@ -23,7 +71,7 @@
 <section id="tasklog-items">
 {% for item in website.tasklogs %}
 <div class="tasklog-item">
-  <div class="tasklog-item-top{% if item.cid == None or item.ipns == None %} br4{% endif %}">
+  <div class="tasklog-item-top{% if item.cid == None and item.ipns == None %} br4{% endif %}">
     <img src="{{ static_url('img/' + item.icon + '.svg') }}" height="16" />
     <div class="tasklog-item-event">{{ item.event }}</div>
     <div class="tasklog-item-time">{{ item.humanize_time(item.created) }}</div>
@@ -41,4 +89,21 @@
 <form method="post" action="/websites/remove/{{ website.id}}" id="remove-website-{{ website.id }}">
 {{ xsrf_form_html()|safe }}
 </form>
+<template id="tasklog-item-template">
+  <div class="tasklog-item">
+  <div class="tasklog-item-top">
+    <img class="tasklog-item-icon" height="16" />
+    <div class="tasklog-item-event"></div>
+    <div class="tasklog-item-time"></div>
+  </div>
+  <div class="tasklog-item-bottom">
+  </div>
+  </div>
+</template>
+<template id="website-item-detail">
+  <div class="item-detail">
+    <span class="item-detail-label"></span>
+    <span class="item-detail-content"></span>
+  </div>
+</template>
 {% endblock %}

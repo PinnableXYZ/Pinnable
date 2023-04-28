@@ -70,6 +70,38 @@ function signout() {
   }
 }
 
+function formatBytes(value) {
+  let val = parseFloat(value);
+  if (val > 1024) {
+    if (val > 1048576) {
+      if (val > 1073741824) {
+        return (val / 1073741824.0).toFixed(2) + " GB";
+      } else {
+        return (val / 1048576.0).toFixed(2) + " MB";
+      }
+    } else {
+      return (val / 1024.0).toFixed(2) + " KB";
+    }
+  } else {
+    return value.toString() + " B";
+  }
+}
+
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp * 1000);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const adjustedHours = hours % 12 || 12;
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const timeZone = new Intl.DateTimeFormat('en', { timeZoneName: 'short' }).format(date).split(' ')[1];
+
+  return `${adjustedHours}:${minutes.toString().padStart(2, '0')} ${ampm} · ${month} ${day}, ${year} ${timeZone}`;
+}
+
 function removeWebsite(websiteId) {
   if (confirm('Are you sure you want to remove this website?')) {
     const form = document.getElementById(`remove-website-${websiteId}`);

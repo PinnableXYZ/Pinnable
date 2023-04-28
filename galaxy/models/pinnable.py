@@ -109,7 +109,7 @@ class Website(Base):
     name = Column(String(200), nullable=False, unique=True)
     last_known_ipns = Column(String(128), nullable=True)
     last_known_cid = Column(String(128), nullable=True)
-    size = Column(BIGINT(unsigned=True), nullable=True, default=0)
+    size = Column(BIGINT(unsigned=True), nullable=True)
     last_checked = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
     last_pinned = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
     tasklogs = relationship(
@@ -163,3 +163,4 @@ class WebsiteTaskLog(Base):
     icon = Column(String(128), nullable=True)
     ipns = Column(String(128), nullable=True)
     cid = Column(String(128), nullable=True)
+    size = Column(BIGINT(unsigned=True), nullable=True)

@@ -2,6 +2,8 @@
 
 import json
 
+from tornado import gen
+from tornado.iostream import StreamClosedError
 from tornado.web import authenticated
 
 from galaxy.handlers.web import WebHandler
@@ -63,6 +65,49 @@ class PinnableWebsitesInfoJSONHandler(WebHandler):
             self.set_status(404)
 
 
+class PinnableWebsitesLogsHandler(WebHandler):
+    @authenticated
+    @gen.coroutine
+    def get(self, website_id):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.set_header("content-type", "text/event-stream")
+            self.set_header("cache-control", "no-cache")
+            last_log_id = 0
+            if len(website.tasklogs) > 0:
+                last_log_id = website.tasklogs[0].id
+            if "last_log_id" in self.request.arguments:
+                last_log_id = int(self.get_argument("last_log_id"))
+            print(f"last_log_id: {last_log_id}")
+            while True:
+                a_log = self.get_website_tasklog_later_than_id(website.id, last_log_id)
+                if a_log:
+                    if a_log.cid is None:
+                        cid = "null"
+                    else:
+                        cid = f'"{a_log.cid}"'
+                    if a_log.ipns is None:
+                        ipns = "null"
+                    else:
+                        ipns = f'"{a_log.ipns}"'
+                    if a_log.size is None:
+                        size = "null"
+                    else:
+                        size = f"{a_log.size}"
+                    payload = f'data: {{"icon":"{a_log.icon}","created":{a_log.created},"event":"{a_log.event}","cid":{cid},"ipns":{ipns},"size":{size}}}\n\n'  # noqa
+                    try:
+                        self.write(payload)
+                        yield self.flush()
+                    except StreamClosedError:
+                        pass
+                    last_log_id = a_log.id
+                else:
+                    self.session.close()
+                    yield gen.sleep(1)
+        else:
+            return self.finish()
+
+
 class PinnableWebsitesPinHandler(WebHandler):
     @authenticated
     def get(self, website_id):
@@ -91,6 +136,7 @@ pinnable_handlers = [
     (r"/websites/?$", PinnableWebsitesHandler),
     (r"/websites/([0-9]+)/?$", PinnableWebsitesInfoHandler),
     (r"/websites/([0-9]+).json$", PinnableWebsitesInfoJSONHandler),
+    (r"/websites/([0-9]+)/logs/?$", PinnableWebsitesLogsHandler),
     (r"/websites/remove/([0-9]+)/?$", PinnableWebsitesRemoveHandler),
     (r"/websites/add/?$", PinnableWebsitesAddHandler),
     (r"/websites/pin/([0-9]+)?$", PinnableWebsitesPinHandler),

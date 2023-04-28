@@ -166,6 +166,7 @@ def pin_website(website_id: int):
             if "Pins" in data:
                 # Website is pinned
                 cid = data["Pins"][0]
+                cid_tasklog = None
                 if website.last_known_cid != cid:
                     tasklog = WebsiteTaskLog()
                     tasklog.website_id = website.id
@@ -174,6 +175,7 @@ def pin_website(website_id: int):
                     tasklog.cid = cid
                     tasklog.created = int(time.time())
                     session.add(tasklog)
+                    cid_tasklog = tasklog
 
                     website.last_known_cid = cid
                     website.last_pinned = int(time.time())
@@ -184,6 +186,8 @@ def pin_website(website_id: int):
                     data = resp.json()
                     if "CumulativeSize" in data:
                         website.size = data["CumulativeSize"]
+                        if cid_tasklog:
+                            cid_tasklog.size = website.size
                         session.commit()
             else:
                 # Not pinned

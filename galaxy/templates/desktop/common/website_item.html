@@ -13,21 +13,20 @@
       {% endif %}
     </div>
   </div>
-  <div class="website-item-details">
+  <div class="website-item-details"{% if request.uri == '/websites/' + str(website.id ) %} id="website-item-details-{{ website.id }}"{% endif %}>
     {% if website.last_known_cid != None %}
     <div class="item-detail">
       <span class="item-detail-label">CID</span>
       <span class="item-detail-content">{{ website.last_known_cid }}</span>
     </div>
     {% else %}
-    <div class="item-detail">
+    <div class="item-detail" id="website-not-pinned-{{ website.id }}">
       <span class="item-detail-content secondary">Website is not pinned yet</span>
     </div>
     {% endif %}
-
   </div>
   <div class="website-item-bottom">
-    <div class="website-info">{{ website.kind }}{% if website.size != None and website.size != 0 %} <span
+    <div class="website-info" id="website-info-{{ website.id }}">{{ website.kind }}{% if website.size != None and website.size != 0 %} <span
         class="dot">·</span> Size: {{ website.size|format_bytes }}{% endif %}</div>
   </div>
 </div>

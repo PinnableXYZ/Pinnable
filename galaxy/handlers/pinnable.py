@@ -99,3 +99,13 @@ class PinnableMixin(object):
             WebsiteTaskLog.website_id == website_id
         ).delete()
         self.session.commit()
+
+    def get_website_tasklog_later_than_id(self, website_id: int, last_log_id: int):
+        a_log = (
+            self.session.query(WebsiteTaskLog)
+            .filter(WebsiteTaskLog.website_id == website_id)
+            .filter(WebsiteTaskLog.id > last_log_id)
+            .order_by(WebsiteTaskLog.id.asc())
+            .first()
+        )
+        return a_log
