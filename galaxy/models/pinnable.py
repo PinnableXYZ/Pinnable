@@ -24,6 +24,8 @@ class Account(Base):
         {"comment": "Account"},
     )
     address = Column(String(128), nullable=False, unique=True)
+    ens = Column(String(255), nullable=True, unique=False)
+    avatar = Column(String(2048), nullable=True, unique=False)
     chain_id = Column(
         INTEGER(display_width=10, unsigned=True), nullable=False, default=1
     )
@@ -37,6 +39,8 @@ class Account(Base):
 
     @property
     def display_name(self) -> str:
+        if self.ens is not None:
+            return self.ens
         return self.address[:6] + "..." + self.address[-4:]
 
     @property

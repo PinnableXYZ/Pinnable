@@ -48,6 +48,8 @@ class PinnableWebsitesInfoHandler(WebHandler):
     def get(self, website_id):
         website = self.get_website_by_id(website_id)
         if website and website.account_id == self.current_user.id:
+            if website.seconds_since(website.last_checked) > 60:
+                self.q.enqueue(check_website, website.id)
             self.values["website"] = website
             self.values["theme_color"] = "#c5c5c5"
             self.finalize("pinnable/websites_info.html")

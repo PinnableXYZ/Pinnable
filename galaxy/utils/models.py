@@ -1,3 +1,5 @@
+import time
+
 import arrow
 from sqlalchemy import Column, inspect
 from sqlalchemy.dialects.mysql import INTEGER
@@ -29,6 +31,9 @@ class Base(object):
 
     def humanize_time(self, ts, tz="US/Pacific"):
         return arrow.get(ts).to(tz).format("h:mm A · MMM D, YYYY ZZZ")
+
+    def seconds_since(self, ts: int):
+        return int(time.time()) - ts
 
     id = Column(
         INTEGER(display_width=10, unsigned=True),

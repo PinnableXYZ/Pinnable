@@ -6,6 +6,7 @@ from datetime import datetime
 from siwe import SiweMessage
 
 from galaxy.handlers.web import WebHandler
+from galaxy.tasks.pinnable import check_account
 
 
 class SystemAuthHandler(WebHandler):
@@ -39,6 +40,10 @@ class SystemAuthHandler(WebHandler):
                 "pinnable:" + siwe_message.address + ":" + str(unix_timestamp)
             )
             self.set_secure_cookie("pinnable", cookie_content, expires_days=7)
+            account = self.get_account(siwe_message.address)
+            if account is None:
+                account = self.create_account(siwe_message.address)
+            self.q.enqueue(check_account, account.id)
             self.redirect("/")
 
 

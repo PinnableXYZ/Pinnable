@@ -11,6 +11,7 @@ from web3 import Web3
 
 import config
 from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
+from galaxy.utils.filters import format_bytes
 
 engine = create_engine(config.database_url, pool_size=20, max_overflow=40)
 Session = scoped_session(sessionmaker(bind=engine))
@@ -18,19 +19,52 @@ r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
 
 
+def resolve_address(account_id: int):
+    session = Session()
+    account = session.query(Account).filter(Account.id == account_id).first()
+    if account is None:
+        print(f"😖 Account (id={account_id}) not found")
+        session.close()
+        return
+    api_request = f"https://api.ensideas.com/ens/resolve/{account.address}"
+    try:
+        resp = requests.get(api_request, timeout=30)
+        if resp.status_code == 200:
+            data = resp.json()
+            if "name" in data and len(data["name"]) > 0:
+                ens = data["name"]
+                print(f"🌐 Resolved {account.address} to ENS: {ens}")
+                if account.ens != ens:
+                    account.ens = ens
+                    session.commit()
+            if "avatar" in data and len(data["avatar"]) > 0:
+                avatar = data["avatar"]
+                print(f"🧞‍♂️ {account.address} has avatar: {avatar}")
+                if account.avatar != avatar:
+                    account.avatar = avatar
+                    session.commit()
+            return
+        print(f"😖 Failed to resolve {account.address} to ENS")
+    except Exception as e:
+        print(e)
+        print(f"😖 Failed to resolve {account.address} to ENS")
+
+
 def check_account(account_id: int):
     session = Session()
     account = session.query(Account).filter(Account.id == account_id).first()
     if account is None:
-        print(f"Account (id={account_id}) not found")
+        print(f"😖 Account (id={account_id}) not found")
         session.close()
         return
     if account.address is None:
-        print(f"Account (id={account_id}) has no address")
+        print(f"😖 Account (id={account_id}) has no address")
         session.close()
         return
     # Check if the account has any tokens with dwb contract:
     # 0x36787480031d8760815b961a5D689B505E8f6cB7
+
+    q.enqueue(resolve_address, account_id)
 
     try:
         # Set up the Ethereum provider
@@ -63,14 +97,14 @@ def check_account(account_id: int):
         balance = token_contract.functions.balanceOf(eth_address).call()
 
         dwb_balance = balance / 10**18
-        print(f"Token balance for address {eth_address}: {dwb_balance}")
+        print(f"⭐️ Token balance for address {eth_address}: {dwb_balance}")
 
         account.dwb_balance = dwb_balance
         account.last_checked = int(time.time())
         session.commit()
     except Exception as e:
         print(e)
-        print(f"Failed to check token balance for address {eth_address}")
+        print(f"🥲 Failed to check token balance for address {eth_address}")
 
     session.close()
 
@@ -92,23 +126,28 @@ def check_website(website_id: int):
                 data = resp.json()
                 if "Path" in data:
                     path = data["Path"]
-                    print(f"Resolved ENS name {website.name} to IPFS path: {path}")
+                    print(f"🌐 Resolved ENS name {website.name} to IPFS path: {path}")
                     if path.startswith("/ipns/"):
-                        if website.last_known_ipns != path[6:]:
+                        ipns = path[6:]
+                        if website.last_known_ipns != ipns:
                             tasklog = WebsiteTaskLog()
                             tasklog.website_id = website.id
                             tasklog.event = "Resolved to IPNS"
                             tasklog.icon = "network"
-                            tasklog.ipns = path[6:]
+                            tasklog.ipns = ipns
                             tasklog.created = int(time.time())
                             session.add(tasklog)
 
-                            website.last_known_ipns = path[6:]
+                            website.last_known_ipns = ipns
                         website.last_checked = int(time.time())
                     session.commit()
                     if website.last_pinned is None:
                         # Pin the website
                         q.enqueue(pin_website, website.id)
+                    else:
+                        if website.seconds_since(website.last_pinned) > 60:
+                            # Pin the website
+                            q.enqueue(pin_website, website.id)
                 else:
                     tasklog = WebsiteTaskLog()
                     tasklog.website_id = website.id
@@ -117,11 +156,11 @@ def check_website(website_id: int):
                     tasklog.created = int(time.time())
                     session.add(tasklog)
                     session.commit()
-                    print(f"Failed to resolve ENS name: {website.name}")
+                    print(f"😖 Failed to resolve ENS name: {website.name}")
             else:
                 tasklog = WebsiteTaskLog()
                 tasklog.website_id = website.id
-                tasklog.event = f"Failed to resolve ENS name: {website.name}"
+                tasklog.event = f"😖 Failed to resolve ENS name: {website.name}"
                 tasklog.icon = "questionmark.circle.fill"
                 tasklog.created = int(time.time())
                 session.add(tasklog)
@@ -143,7 +182,7 @@ def check_website(website_id: int):
                     website.last_checked = int(time.time())
                     session.commit()
                     print(
-                        f"Size of {website.name} / {website.last_known_cid}: {website.size}"  # noqa
+                        f"💾 Size of {website.name} / {website.last_known_cid}: {format_bytes(website.size)}"  # noqa
                     )
         except Exception as e:
             print(e)
@@ -154,7 +193,7 @@ def pin_website(website_id: int):
     session = Session()
     website = session.query(Website).filter(Website.id == website_id).first()
     if website is None:
-        print(f"Website (id={website_id}) not found")
+        print(f"😖 Website (id={website_id}) not found")
         session.close()
         return
     # call ipfs pin add
@@ -168,6 +207,7 @@ def pin_website(website_id: int):
                 cid = data["Pins"][0]
                 cid_tasklog = None
                 if website.last_known_cid != cid:
+                    print(f"📌 Pinned {website.name} to {cid}")
                     tasklog = WebsiteTaskLog()
                     tasklog.website_id = website.id
                     tasklog.event = "Pinned"
@@ -178,6 +218,9 @@ def pin_website(website_id: int):
                     cid_tasklog = tasklog
 
                     website.last_known_cid = cid
+                    website.last_pinned = int(time.time())
+                else:
+                    print(f"😚 {website.name} is already pinned to {cid}")
                     website.last_pinned = int(time.time())
                 session.commit()
                 stat_request = f"{config.ipfs_server}/api/v0/files/stat?arg=/ipfs/{website.last_known_cid}"  # noqa
