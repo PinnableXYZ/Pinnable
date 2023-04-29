@@ -2,6 +2,7 @@
 
 import re
 import time
+import uuid
 
 import pylibmc
 import redis
@@ -24,6 +25,10 @@ class PinnableMixin(object):
             .filter(Account.address == address.lower())
             .first()
         )
+        return account
+
+    def get_account_by_id(self, account_id: int):
+        account = self.session.query(Account).filter(Account.id == account_id).first()
         return account
 
     def create_account(self, address: str):
@@ -77,9 +82,18 @@ class PinnableMixin(object):
         website = self.session.query(Website).filter(Website.id == website_id).first()
         return website
 
+    def get_website_by_pin_api_uuid(self, pin_api_uuid: str):
+        website = (
+            self.session.query(Website)
+            .filter(Website.pin_api_uuid == pin_api_uuid)
+            .first()
+        )
+        return website
+
     def create_website(self, name: str):
         website = Website()
         website.account_id = self.current_user.id
+        website.pin_api_uuid = str(uuid.uuid4())
         website.name = name
         website.created = int(time.time())
         self.session.add(website)

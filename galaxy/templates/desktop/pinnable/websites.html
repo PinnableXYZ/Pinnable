@@ -9,11 +9,14 @@
     <span>Add Website</span>
   </a>
   {% else %}
-  {% if account.dwb_balance == 0 %}
-  Before you can add a website, you need to <i class="dwb"></i> <a href="/pricing">get some dwb tokens</a>.
-  {% else %}
-  To add more website, you need to <i class="dwb"></i> <a href="/pricing">get more dwb tokens</a>.
-  {% endif %}
+    {% if account.dwb_balance == 0 %}
+      <p>Before you can add a website, you need to <a href="/pricing">get some dwb tokens</a>.</p>
+    {% else %}
+      <p>To add more website, you need to <a href="/pricing">get more dwb tokens</a>.</p>
+    {% endif %}
+    <div class="flex-one-row">
+      {% include 'desktop/common/get_dwb.html' %}
+    </div>
   {% endif %}
 </div>
 <div class="box" id="websites">

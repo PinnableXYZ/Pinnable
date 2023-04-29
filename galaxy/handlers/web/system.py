@@ -70,6 +70,8 @@ class SystemPlanetHandler(WebHandler):
 
 class SystemSignOutHandler(WebHandler):
     def post(self):
+        if self.current_user is not None:
+            self.q.enqueue(check_account, self.current_user.id)
         self.clear_cookie("pinnable")
         self.redirect("/")
 

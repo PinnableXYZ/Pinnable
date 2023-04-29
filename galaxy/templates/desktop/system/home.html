@@ -5,7 +5,7 @@
 <section>
 
 {% if account %}
-<p>Welcome back :-) <code>{{ account.checksum_address }}</code></p>
+<p>Welcome back :-) <code>{{ account.display_name }}</code></p>
 <div class="flex-one-row">
 <a href="/websites" class="btn">
   <img src="{{ static_url("img/network.svg") }}" height="16" />

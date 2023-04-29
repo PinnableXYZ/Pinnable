@@ -105,6 +105,7 @@ class Website(Base):
     __tablename__ = "Website"
     __table_arts__ = (
         sa.Index("account_name", "account_id", "name", unique=True),
+        sa.Index("pin_api_uuid", "pin_api_uuid", unique=True),
         sa.Index("account_id", "account_id"),
         {"comment": "Website"},
     )
@@ -114,6 +115,7 @@ class Website(Base):
         back_populates="websites",
         primaryjoin="Account.id == foreign(Website.account_id)",
     )
+    pin_api_uuid = Column(String(36), nullable=False, unique=True)
     name = Column(String(200), nullable=False, unique=True)
     last_known_ipns = Column(String(128), nullable=True)
     last_known_cid = Column(String(128), nullable=True)

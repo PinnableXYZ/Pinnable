@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import time
+import uuid
 
 import redis
 import requests
@@ -116,6 +117,9 @@ def check_website(website_id: int):
         print(f"Website (id={website_id}) not found")
         session.close()
         return
+    if website.pin_api_uuid is None or len(website.pin_api_uuid) == 0:
+        website.pin_api_uuid = str(uuid.uuid4())
+        session.commit()
     if website.kind == "ENS":
         # Try resolve the ENS name with IPFS API
         api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"  # noqa

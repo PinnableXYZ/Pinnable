@@ -32,7 +32,9 @@ class Base(object):
     def humanize_time(self, ts, tz="US/Pacific"):
         return arrow.get(ts).to(tz).format("h:mm A · MMM D, YYYY ZZZ")
 
-    def seconds_since(self, ts: int):
+    def seconds_since(self, ts: int | None):
+        if ts is None:
+            ts = 0
         return int(time.time()) - ts
 
     id = Column(

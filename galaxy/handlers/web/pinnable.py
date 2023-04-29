@@ -75,6 +75,7 @@ class PinnableWebsitesLogsHandler(WebHandler):
         if website and website.account_id == self.current_user.id:
             self.set_header("content-type", "text/event-stream")
             self.set_header("cache-control", "no-cache")
+            self.set_header("x-accel-buffering", "no")
             last_log_id = 0
             if len(website.tasklogs) > 0:
                 last_log_id = website.tasklogs[0].id
@@ -122,9 +123,54 @@ class PinnableWebsitesPinHandler(WebHandler):
             self.q.enqueue(pin_website, website.id)
 
 
+class PinnableWebsitesPinUUIDHandler(WebHandler):
+    def get(self, pin_api_uuid: str):
+        website = self.get_website_by_pin_api_uuid(pin_api_uuid)
+        if website:
+            account = self.get_account_by_id(website.account_id)
+            if account.dwb_balance > 0:
+                self.q.enqueue(pin_website, website.id)
+                self.set_status(202)
+                o = {}
+                o["status"] = "ok"
+                o["message"] = "website is being pinned"
+            else:
+                self.set_status(402)
+                o = {}
+                o["status"] = "error"
+                o["message"] = "insufficient dwb balance"
+            self.write(json.dumps(o))
+        else:
+            self.set_status(404)
+            o = {}
+            o["status"] = "error"
+            o["message"] = "website not found"
+            self.write(json.dumps(o))
+
+
+class PinnableWebsitesPinUUIDStatusHandler(WebHandler):
+    def get(self, pin_api_uuid: str):
+        website = self.get_website_by_pin_api_uuid(pin_api_uuid)
+        if website:
+            o = {}
+            o["status"] = "ok"
+            o["last_known_cid"] = website.last_known_cid
+            o["last_known_ipns"] = website.last_known_ipns
+            o["size"] = website.size
+            o["created"] = website.created
+            o["last_pinned"] = website.last_pinned
+            o["last_checked"] = website.last_checked
+            self.write(json.dumps(o))
+        else:
+            self.set_status(404)
+            o = {}
+            o["status"] = "error"
+            o["message"] = "website not found"
+
+
 class PinnableWebsitesRemoveHandler(WebHandler):
     @authenticated
-    def post(self, website_id):
+    def post(self, website_id: int):
         website = self.get_website_by_id(website_id)
         if website and website.account_id == self.current_user.id:
             self.delete_website_tasklogs_by_website_id(website.id)
@@ -141,5 +187,13 @@ pinnable_handlers = [
     (r"/websites/([0-9]+)/logs/?$", PinnableWebsitesLogsHandler),
     (r"/websites/remove/([0-9]+)/?$", PinnableWebsitesRemoveHandler),
     (r"/websites/add/?$", PinnableWebsitesAddHandler),
-    (r"/websites/pin/([0-9]+)?$", PinnableWebsitesPinHandler),
+    (r"/websites/pin/([0-9]+)/?$", PinnableWebsitesPinHandler),
+    (
+        r"/pin/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/?$",  # noqa
+        PinnableWebsitesPinUUIDHandler,
+    ),
+    (
+        r"/pin/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/status/?$",  # noqa
+        PinnableWebsitesPinUUIDStatusHandler,
+    ),
 ]

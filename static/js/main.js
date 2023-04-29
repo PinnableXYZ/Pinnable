@@ -108,3 +108,18 @@ function removeWebsite(websiteId) {
     form.submit();
   }
 }
+
+function toggleVisibility(elem) {
+  if (elem.type === "password") {
+      elem.type = "text";
+  } else {
+      elem.type = "password";
+  }
+}
+
+const copyValue = async (elem) => {
+  const copyText = document.getElementById(elem);
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  await navigator.clipboard.writeText(copyText.value);
+}

@@ -66,6 +66,18 @@ source.onmessage = function(message) {
 </div>
 </section>
 </div>
+
+<div class="box">
+  <h2 class="aside">Pinning API Endpoint</h2>
+
+  <p>You can integrate the Pinnable API endpoint into the Planet application by copying and pasting it into the pinning settings. This will enable pinning functionality with Pinnable.</p>
+
+  <div class="flex-one-row">
+    <input type="password" id="pin-api-{{ website.id }}" class="sl" style="font-size: 14px; box-sizing: border-box; height: 28px;" value="{{ pinnable_api_prefix }}/pin/{{ website.pin_api_uuid }}" onclick="toggleVisibility(this);" readonly />
+    <a href="javascript:copyValue('pin-api-{{ website.id }}')" class="btn small">Copy</a>
+  </div>
+</div>
+
 <div class="box">
 <h2 class="aside">Task Logs</h2>
 <section id="tasklog-items">

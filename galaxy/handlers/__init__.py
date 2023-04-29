@@ -8,6 +8,7 @@ import tornado.web
 from rq import Queue
 from tornado_sqlalchemy import SessionMixin
 
+import config
 from galaxy.handlers.pinnable import PinnableMixin
 
 
@@ -92,6 +93,7 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
+            self._values["pinnable_api_prefix"] = config.pinnable_api_prefix
             self._values["str"] = str
             self._values["breadcrumb"] = self.breadcrumb
             self._values["static_url"] = self.static_url
