@@ -100,6 +100,14 @@ class Account(Base):
             return False
         return True
 
+    @property
+    def has_avatar(self) -> bool:
+        if self.avatar is None:
+            return False
+        elif len(self.avatar) == 0:
+            return False
+        return True
+
 
 class Website(Base):
     __tablename__ = "Website"

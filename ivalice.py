@@ -22,10 +22,18 @@ define("port", default=12345, help="run on the given port", type=int)
 
 
 def build_handlers():
+    from galaxy.handlers.web.cron import cron_handlers
     from galaxy.handlers.web.pinnable import pinnable_handlers
+    from galaxy.handlers.web.profile import profile_handlers
     from galaxy.handlers.web.system import system_handlers
 
-    return pinnable_handlers + system_handlers + [(r"/(.*)$", System404Handler)]
+    return (
+        pinnable_handlers
+        + profile_handlers
+        + cron_handlers
+        + system_handlers
+        + [(r"/(.*)$", System404Handler)]
+    )
 
 
 class Application(tornado.web.Application):

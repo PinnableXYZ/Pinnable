@@ -710,6 +710,32 @@ ul:last-child {
   color: var(--color-secondary);
 }
 
+.profile {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  background-size: cover;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profile-name {
+  font-size: 24px;
+}
+
+.profile-info-row {
+  font-size: 14px;
+}
+
 /* adjustments for small screens <= 400px */
 
 @media screen and (max-width: 400px) {
