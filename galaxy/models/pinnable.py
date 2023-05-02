@@ -81,7 +81,7 @@ class Account(Base):
         used_size = 0
 
         for website in self.websites:
-            used_size = used_size + website.size
+            used_size = used_size + (website.size or 0)
 
         quota["used_size"] = used_size
 
