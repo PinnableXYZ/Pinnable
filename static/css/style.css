@@ -136,17 +136,26 @@ p {
   color: #111;
 }
 
+.bottom-container {
+  background-color: var(--color-theme);
+  border-top: var(--box-border);
+  min-height: 20px;
+  position: sticky;
+  bottom: 0px;
+}
+
+footer {
+  max-width: var(--desktop-max-width);
+  padding: 10px calc(var(--desktop-side-padding) + env(safe-area-inset-right)) 10px calc(var(--desktop-side-padding) + env(safe-area-inset-left));
+  font-size: 12px;
+}
+
 .top-container {
   background-color: var(--color-theme);
   border-bottom: var(--box-border);
   position: sticky;
   top: 0px;
   z-index: 99;
-}
-
-.bottom-container {
-  border-top: var(--box-border);
-  min-height: 20px;
 }
 
 header {
