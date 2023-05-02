@@ -56,7 +56,10 @@ class PinnableMixin(object):
         if name.endswith(".eth"):
             existing_name = self.get_website(name, account_id=self.current_user.id)
             if existing_name:
-                self.add_error("Website name already exists.")
+                self.add_error(
+                    "Website is already added: <a href='/websites/%d'>%s</a>"
+                    % (existing_name.id, name)
+                )
         if name_length > 200:
             self.add_error("Name must be less than 200 characters.")
 
