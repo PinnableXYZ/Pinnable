@@ -202,6 +202,7 @@ def pin_website(website_id: int):
         return
     # call ipfs pin add
     pin_request = f"{config.ipfs_server}/api/v0/pin/add?arg={website.ipfs_path}"
+    print(f"🪃  POST: {pin_request}")
     try:
         resp = requests.post(pin_request, timeout=3600)
         if resp.status_code == 200:
