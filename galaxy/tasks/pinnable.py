@@ -213,14 +213,28 @@ def pin_website(website_id: int):
                 cid_tasklog = None
                 if website.last_known_cid != cid:
                     print(f"📌 Pinned {website.name} to {cid}")
-                    tasklog = WebsiteTaskLog()
-                    tasklog.website_id = website.id
-                    tasklog.event = "Pinned"
-                    tasklog.icon = "checkmark.circle.fill"
-                    tasklog.cid = cid
-                    tasklog.created = int(time.time())
-                    session.add(tasklog)
-                    cid_tasklog = tasklog
+                    recent_tasklog = (
+                        session.query(WebsiteTaskLog)
+                        .filter(
+                            WebsiteTaskLog.website_id == website.id,
+                            WebsiteTaskLog.event == "Pinned",
+                            WebsiteTaskLog.cid == cid,
+                        )
+                        .order_by(WebsiteTaskLog.created.desc())
+                        .first()
+                    )
+                    if recent_tasklog is None:
+                        tasklog = WebsiteTaskLog()
+                        tasklog.website_id = website.id
+                        tasklog.event = "Pinned"
+                        tasklog.icon = "checkmark.circle.fill"
+                        tasklog.cid = cid
+                        tasklog.created = int(time.time())
+                        session.add(tasklog)
+                        cid_tasklog = tasklog
+                    else:
+                        recent_tasklog.created = int(time.time())
+                        cid_tasklog = recent_tasklog
 
                     website.last_known_cid = cid
                     website.last_pinned = int(time.time())
