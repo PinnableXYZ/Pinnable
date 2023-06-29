@@ -253,6 +253,18 @@ article {
   gap: 10px;
 }
 
+#web-session-message {
+  padding: 10px 20px 10px 20px;
+  border-bottom: var(--box-border);
+  line-height: 1.2;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fffff0;
+  color: #111;
+}
+
 .box:last-child {
   border-bottom: none;
 }

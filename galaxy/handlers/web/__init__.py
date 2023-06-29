@@ -22,6 +22,19 @@ class WebHandler(BaseHandler):
         o = o + "</div>"
         return o
 
+    def web_session_message(self):
+        o = ""
+        if "message" in self.web_session:
+            o = (
+                o
+                + '<div id="web-session-message"'
+                + " onclick=\"this.style.display = 'none';\">"
+            )
+            o = o + self.web_session["message"]
+            o = o + "</div>"
+            del self.web_session["message"]
+        return o
+
     def finalize(
         self, template_name, write_static=False, static_key="", output_string=False
     ):

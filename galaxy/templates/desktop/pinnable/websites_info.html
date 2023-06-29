@@ -48,6 +48,7 @@ source.onmessage = function(message) {
 };
 {% endblock %}
 {% block content %}
+{{ web_session_message()|safe }}
 {{ breadcrumb(['Websites:/websites', website.name + ':/websites/' + str(website.id)])|safe }}
 <div class="box">
 <section>

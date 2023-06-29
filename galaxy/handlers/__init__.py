@@ -2,7 +2,9 @@
 
 import calendar
 import datetime
+import json
 import re
+import secrets
 
 import tornado.web
 from rq import Queue
@@ -13,6 +15,30 @@ from galaxy.handlers.pinnable import PinnableMixin
 
 
 class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
+    def prepare(self):
+        web_session_id = self.get_secure_cookie("IVALICE_WEB_SESSION")
+        if web_session_id is None:
+            self.web_session, self.web_session_id = self.start_web_session()
+        else:
+            self.web_session_id = web_session_id
+            web_session_data = self.mc.get(web_session_id)
+            if web_session_data is not None:
+                self.web_session = json.loads(web_session_data)
+            else:
+                self.web_session = {}
+
+    def start_web_session(self):
+        web_session_id = (
+            "ivalice:" + self.request.remote_ip + ":" + str(secrets.randbelow(99999999))
+        )
+        expires = datetime.datetime.utcnow() + datetime.timedelta(days=5)
+        self.set_secure_cookie(
+            "IVALICE_WEB_SESSION", web_session_id, expires=expires, httponly=True
+        )
+        web_session_data = {}
+        self.mc.set(web_session_id, json.dumps(web_session_data), 86400 * 5)
+        return web_session_data, web_session_id
+
     def now(self):
         return int(calendar.timegm(datetime.datetime.utcnow().timetuple()))
 
@@ -93,6 +119,8 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
+            self._values["web_session"] = self.web_session
+            self._values["web_session_message"] = self.web_session_message
             self._values["pinnable_api_prefix"] = config.pinnable_api_prefix
             self._values["str"] = str
             self._values["breadcrumb"] = self.breadcrumb
@@ -106,3 +134,7 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
 
     def on_finish(self):
         self.session.close()
+        try:
+            self.mc.set(self.web_session_id, json.dumps(self.web_session), 86400 * 5)
+        except Exception as e:
+            self.application.log.error(e)
