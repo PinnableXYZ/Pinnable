@@ -7,6 +7,7 @@ import re
 import secrets
 
 import tornado.web
+from loguru import logger
 from rq import Queue
 from tornado_sqlalchemy import SessionMixin
 
@@ -16,6 +17,7 @@ from galaxy.handlers.pinnable import PinnableMixin
 
 class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def prepare(self):
+        self.logger = logger
         web_session_id = self.get_secure_cookie("IVALICE_WEB_SESSION")
         if web_session_id is None:
             self.web_session, self.web_session_id = self.start_web_session()

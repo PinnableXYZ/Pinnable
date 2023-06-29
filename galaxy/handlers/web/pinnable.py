@@ -81,7 +81,11 @@ class PinnableWebsitesLogsHandler(WebHandler):
                 last_log_id = website.tasklogs[0].id
             if "last_log_id" in self.request.arguments:
                 last_log_id = int(self.get_argument("last_log_id"))
-            print(f"last_log_id: {last_log_id}")
+            self.logger.info(
+                "Website {website_id} - last_log_id: {last_log_id}",
+                website_id=website_id,
+                last_log_id=last_log_id,
+            )
             while True:
                 a_log = self.get_website_tasklog_later_than_id(website.id, last_log_id)
                 if a_log:
@@ -120,6 +124,7 @@ class PinnableWebsitesPinHandler(WebHandler):
         if website and ipfs_path:
             session_message = "Pinning website: %s" % ipfs_path
             self.web_session["message"] = session_message
+            self.logger.info("Pinning website: {ipfs_path}", ipfs_path=ipfs_path)
             self.q.enqueue(check_website, website.id)
             self.q.enqueue(pin_website, website.id)
         self.redirect("/websites/%s" % website_id)
