@@ -138,5 +138,5 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
         self.session.close()
         try:
             self.mc.set(self.web_session_id, json.dumps(self.web_session), 86400 * 5)
-        except Exception as e:
-            self.application.log.error(e)
+        except Exception:
+            self.logger.exception("Failed to save session")
