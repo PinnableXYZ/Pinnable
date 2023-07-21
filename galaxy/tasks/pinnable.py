@@ -133,6 +133,8 @@ def check_website(website_id: int):
                     print(f"🌐 Resolved ENS name {website.name} to IPFS path: {path}")
                     if path.startswith("/ipns/"):
                         ipns = path[6:]
+                        if ipns.endswith("/"):
+                            ipns = ipns[:-1]
                         if website.last_known_ipns != ipns:
                             tasklog = WebsiteTaskLog()
                             tasklog.website_id = website.id
