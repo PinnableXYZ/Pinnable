@@ -29,6 +29,11 @@
     <span>Get More Storage</span>
   </a>
 </div>
+{% if account.dwb_balance == 0 %}
+<div class="box">
+  <p>If you have just finished your payment, it may take a while for it to reflect here.</p>
+</div>
+{% endif %}
 {% endif %}
 </div>
 {% endif %}
