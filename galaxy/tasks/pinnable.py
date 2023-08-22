@@ -62,8 +62,9 @@ def check_account(account_id: int):
         print(f"😖 Account (id={account_id}) has no address")
         session.close()
         return
-    # Check if the account has any tokens with dwb contract:
-    # 0x36787480031d8760815b961a5D689B505E8f6cB7
+    # Check if the account has any Planetable tokens in the JBTokenStore:
+    # 0x6FA996581D7edaABE62C15eaE19fEeD4F1DdDfE7
+    # projectId 471
 
     q.enqueue(resolve_address, account_id)
 
@@ -75,16 +76,19 @@ def check_account(account_id: int):
         w3 = Web3(Web3.HTTPProvider(provider))
 
         # Token contract and Ethereum address
-        token_contract_address = Web3.to_checksum_address(
-            "0x36787480031d8760815b961a5D689B505E8f6cB7"
+        JBTokenStore_address = Web3.to_checksum_address(
+            "0x6FA996581D7edaABE62C15eaE19fEeD4F1DdDfE7"
         )
         eth_address = Web3.to_checksum_address(account.address)
 
-        # ABI for the ERC20 standard (minimal version)
-        erc20_abi = [
+        # ABI for the JBTokenStore balanceOf function
+        token_store_abi = [
             {
                 "constant": True,
-                "inputs": [{"name": "_owner", "type": "address"}],
+                "inputs": [
+                    {"name": "_holder", "type": "address"},
+                    {"name": "_projectId", "type": "uint256"}
+                ],
                 "name": "balanceOf",
                 "outputs": [{"name": "balance", "type": "uint256"}],
                 "type": "function",
@@ -92,10 +96,10 @@ def check_account(account_id: int):
         ]
 
         # Create contract instance
-        token_contract = w3.eth.contract(address=token_contract_address, abi=erc20_abi)
+        JBTokenStore_contract = w3.eth.contract(address=JBTokenStore_address, abi=token_store_abi)
 
-        # Fetch the token balance
-        balance = token_contract.functions.balanceOf(eth_address).call()
+        # Fetch the token balance for projectId 471 (https://juicebox.money/@pinnable)
+        balance = JBTokenStore_contract.functions.balanceOf(eth_address, 471).call()
 
         dwb_balance = balance / 10**18
         print(f"⭐️ Token balance for address {eth_address}: {dwb_balance}")
