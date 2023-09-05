@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from galaxy.handlers.web import WebHandler
+from galaxy.tasks.dl import check_update
 
 
 class DLPlanetHandler(WebHandler):
@@ -11,6 +12,9 @@ class DLPlanetHandler(WebHandler):
         if mc_value is not None:
             self.redirect(mc_value)
         else:
+            check_update(
+                "planet", "https://opensource.planetable.xyz/planet/appcast.xml"
+            )  # noqa: E501
             self.redirect(default_address)
 
 
@@ -22,6 +26,9 @@ class DLCroptopHandler(WebHandler):
         if mc_value is not None:
             self.redirect(mc_value)
         else:
+            check_update(
+                "croptop", "https://opensource.planetable.xyz/croptop/appcast.xml"
+            )  # noqa: E501
             self.redirect(default_address)
 
 
