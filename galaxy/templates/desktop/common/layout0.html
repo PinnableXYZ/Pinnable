@@ -31,7 +31,7 @@
       {% if account %}
       <div class="spacer"></div>
       <div class="account-badge" onclick="location.href='/profile'">
-        <div class="account-avatar"{% if account.avatar != None %} style="background-image: url('{{ account.avatar }}'); background-size: 16px 16px; background-repeat: no-repeat; background-position: center;"{% endif %}></div>
+        <div class="account-avatar"{% if account.avatar != None %} style="background-image: url('{{ account.avatar }}');"{% else %}style="background-image: url('https://zora.co/api/avatar/{{ account.address }}');"{% endif %}></div>
         <div class="account-name">{{ account.display_name }}</div>
       </div>
       {% endif %}

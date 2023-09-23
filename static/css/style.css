@@ -172,7 +172,7 @@ header {
 
 .account-badge {
   padding: 4px 8px 4px 4px;
-  border-radius: 5px;
+  border-radius: 22px;
   transition: box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out;
   font-family: var(--mono-font-family);
   font-size: 14px;
@@ -184,14 +184,17 @@ header {
 }
 
 .account-avatar {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 3px;
+  border-radius: 16px;
   width: 16px;
   height: 16px;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.1));
 }
 
 .account-badge:hover {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.2);
   box-shadow: var(--shadows);
   cursor: pointer;
 }
@@ -742,6 +745,8 @@ ul:last-child {
 .profile-avatar {
   width: 72px;
   height: 72px;
+  border-radius: 72px;
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.1));
   background-size: cover;
 }
 
