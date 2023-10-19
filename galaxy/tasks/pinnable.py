@@ -87,7 +87,7 @@ def check_account(account_id: int):
                 "constant": True,
                 "inputs": [
                     {"name": "_holder", "type": "address"},
-                    {"name": "_projectId", "type": "uint256"}
+                    {"name": "_projectId", "type": "uint256"},
                 ],
                 "name": "balanceOf",
                 "outputs": [{"name": "balance", "type": "uint256"}],
@@ -96,7 +96,9 @@ def check_account(account_id: int):
         ]
 
         # Create contract instance
-        JBTokenStore_contract = w3.eth.contract(address=JBTokenStore_address, abi=token_store_abi)
+        JBTokenStore_contract = w3.eth.contract(
+            address=JBTokenStore_address, abi=token_store_abi
+        )
 
         # Fetch the token balance for projectId 471 (https://juicebox.money/@pinnable)
         balance = JBTokenStore_contract.functions.balanceOf(eth_address, 471).call()
@@ -210,7 +212,7 @@ def pin_website(website_id: int):
     pin_request = f"{config.ipfs_server}/api/v0/pin/add?arg={website.ipfs_path}"
     print(f"🪃  POST: {pin_request}")
     try:
-        resp = requests.post(pin_request, timeout=3600)
+        resp = requests.post(pin_request, timeout=120)
         if resp.status_code == 200:
             data = resp.json()
             if "Pins" in data:
