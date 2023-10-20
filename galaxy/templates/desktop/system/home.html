@@ -1,4 +1,7 @@
 {% extends 'desktop/common/layout0.html' %}
+{% block dom_ready %}
+checkWalletConnection();
+{% endblock %}
 {% block content %}
 <div class="box">
 <h1>Welcome to Pinnable</h1>
@@ -18,7 +21,13 @@
 {% else %}
 <p>We are building open-source software and infrastructure for pinning decentralized websites running on IPFS and ENS.</p>
 
+<a href="javascript:doSIWE()" class="btn">
+  <img src="{{ static_url("img/ethereum.svg") }}" height="16" />
+  <span id="siwe-button-label"></span>
+</a>
+<!--
 <a href="javascript:doSIWE();" class="svg-btn"><img src="{{ static_url("img/siwe.svg") }}" border="0" alt="Sign in with Ethereum" class="btn-siwe" /></a>
+-->
 <form method="post" action="/auth" id="siwe-form">
   <input type="hidden" name="signature" id="siwe-signature" value="">
   <input type="hidden" name="message" id="siwe-message" value="">

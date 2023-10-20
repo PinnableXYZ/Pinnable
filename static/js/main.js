@@ -1,3 +1,27 @@
+async function checkWalletConnection() {
+  let siweLabel = document.getElementById("siwe-button-label");
+  if (window.ethereum) {
+    try {
+      // Request list of accounts from user's wallet
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+
+      if (accounts.length > 0) {
+        // Wallet is connected
+        siweLabel.innerHTML = "Sign in with Ethereum";
+      } else {
+        // Wallet is not connected
+        siweLabel.innerHTML = "Connect Wallet";
+      }
+    } catch (error) {
+      console.log(error);
+      siweLabel.innerHTML = "Connect Wallet";
+    }
+  } else {
+    // No web3 provider detected
+    siweLabel.innerHTML = "Connect Wallet";
+  }
+}
+
 async function doSIWE() {
   let signer = null;
   let provider;
@@ -9,6 +33,10 @@ async function doSIWE() {
     .then(async (accounts) => {
       console.log(accounts);
       address = ethers.getAddress(accounts[0]);
+      if (address) {
+        let siweLabel = document.getElementById('siwe-button-label');
+        siweLabel.innerText = 'Sign in with Ethereum';
+      }
     })
     .catch(() => console.log('User rejected account access'));
 
