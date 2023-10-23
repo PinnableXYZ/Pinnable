@@ -20,6 +20,21 @@
   </script>
 </div>
 <div class="box">
+  {{ account.nfts.__len__() }} collab NFTs
+
+  <div class="nft-gallery tight">
+  {% for nft in account.nfts %}
+    <figure class="nft">
+      <a href="https://opensea.io/assets/{{ nft.chain }}/{{ nft.contract }}/{{ nft.token_id }}" target="_blank" class="img-link"><img src="{{ nft.image_url }}" alt="{{ nft.collection_name }} - {{ nft.token_id }}" /></a>
+      <figcaption class="caption"><a href="https://opensea.io/assets/{{ nft.chain }}/{{ nft.contract }}/{{ nft.token_id }}" target="_blank"><strong>{{ nft.token_id }}</strong><br />{{ nft.collection_name|e }}</a></figcaption>
+    </figure>
+  {% endfor %}
+  </div>
+
+  <p>Since you own NFTs from projects by Pinnable's friends, you've gained {{ account.nfts.__len__() }} extra website{% if account.nfts.__len__() > 1 %}s{% endif %} and {{ account.nfts.__len__() }} GB of additional storage space.</p>
+
+</div>
+<div class="box">
   <div class="flex-one-row">
   <a href="/websites" class="btn">
     <img src="{{ static_url("img/network.svg") }}" height="16" />

@@ -36,6 +36,11 @@ class Account(Base):
         back_populates="account",
         primaryjoin="Account.id == foreign(Website.account_id)",
     )
+    nfts = relationship(
+        "NFTOwnership",
+        back_populates="account",
+        primaryjoin="Account.id == foreign(NFTOwnership.account_id)",
+    )
 
     @property
     def display_name(self) -> str:
@@ -55,26 +60,28 @@ class Account(Base):
         quota["used_websites"] = 0
         quota["used_size"] = 0
 
+        # quota from dwb
         if self.dwb_balance == 0:
-            return quota
-
-        if self.dwb_balance == 50:
+            pass
+        elif self.dwb_balance < 50:
+            pass
+        elif self.dwb_balance == 50:
             quota["total_websites"] = 2
             quota["total_size"] = 5 * ONE_GIGA_BYTE
-            return quota
-
-        if self.dwb_balance == 100:
+        elif self.dwb_balance == 100:
             quota["total_websites"] = 5
             quota["total_size"] = 10 * ONE_GIGA_BYTE
-            return quota
-
-        if self.dwb_balance == 250:
+        elif self.dwb_balance == 250:
             quota["total_websites"] = 25
             quota["total_size"] = 25 * ONE_GIGA_BYTE
-            return quota
+        else:
+            quota["total_websites"] = math.ceil(self.dwb_balance / 10)
+            quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
 
-        quota["total_websites"] = math.ceil(self.dwb_balance / 10)
-        quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
+        # quota from NFT
+        for _nft in self.nfts:
+            quota["total_websites"] = quota["total_websites"] + 1
+            quota["total_size"] = quota["total_size"] + (1 * ONE_GIGA_BYTE)
 
         quota["used_websites"] = len(self.websites)
 
@@ -182,3 +189,39 @@ class WebsiteTaskLog(Base):
     ipns = Column(String(128), nullable=True)
     cid = Column(String(128), nullable=True)
     size = Column(BIGINT(unsigned=True), nullable=True)
+
+
+class NFTOwnership(Base):
+    __tablename__ = "NFTOwnership"
+    __table_arts__ = (
+        sa.Index("chain", "contract", "token_id", unique=True),
+        sa.Index("account_id", "account_id"),
+        {"comment": "NFT Ownership"},
+    )
+    account_id = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
+    account = relationship(
+        "Account",
+        back_populates="nfts",
+        primaryjoin="Account.id == foreign(NFTOwnership.account_id)",
+    )
+    chain = Column(String(32), nullable=False)
+    contract = Column(String(128), nullable=False)
+    token_id = Column(String(128), nullable=False)
+    image_url = Column(String(512), nullable=True)
+    last_checked = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
+
+    @classmethod
+    def collab_nft_collections(cls):
+        return {
+            "0xcdb7c1a6fe7e112210ca548c214f656763e13533": "Ready Player Cat",
+            "0xd8b4359143eda5b2d763e127ed27c77addbc47d3": "Juicebox Projects",
+        }
+
+    @property
+    def collection_name(self):
+        contract_lower = self.contract.lower()
+        collections = NFTOwnership.collab_nft_collections()
+        if contract_lower in collections:
+            return collections[contract_lower]
+        else:
+            return "NFT Collection"

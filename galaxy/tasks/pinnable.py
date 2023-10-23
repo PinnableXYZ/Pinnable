@@ -11,7 +11,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from web3 import Web3
 
 import config
-from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
+from galaxy.models.pinnable import Account, NFTOwnership, Website, WebsiteTaskLog
 from galaxy.utils.filters import format_bytes
 
 engine = create_engine(config.database_url, pool_size=20, max_overflow=40)
@@ -113,7 +113,102 @@ def check_account(account_id: int):
         print(e)
         print(f"🥲 Failed to check token balance for address {eth_address}")
 
+    # Check if this address has any qualifying NFTs
+    nft_collections = NFTOwnership.collab_nft_collections()
+    for contract_address in nft_collections:
+        token_ids = get_nft_token_ids(contract_address, account.address)
+        for token_id in token_ids:
+            chain = "ethereum"
+            token = (
+                session.query(NFTOwnership)
+                .filter(
+                    NFTOwnership.chain == chain,
+                    NFTOwnership.contract == contract_address,
+                    NFTOwnership.token_id == token_id,
+                )
+                .first()
+            )
+            if token is None:
+                token = NFTOwnership()
+                token.account_id = account.id
+                token.chain = chain
+                token.contract = contract_address
+                token.token_id = token_id
+                token.created = int(time.time())
+                token.last_checked = int(time.time())
+                session.add(token)
+                session.commit()
+            else:
+                token.account_id = account.id
+                token.last_checked = int(time.time())
+                session.commit()
+
+            image_url = get_nft_image_url(contract_address, token_id)
+            if image_url is not None:
+                token.image_url = image_url
+                session.commit()
+            else:
+                print(
+                    f"🥲 Failed to get image url for token {contract_address}-{token_id}"
+                )
+
     session.close()
+
+
+def get_nft_image_url(contract_address, token_id):
+    base_url = "https://api.opensea.io/api/v1/assets"
+    headers = {"X-API-KEY": config.opensea_api_key}
+    params = {"token_ids": token_id, "asset_contract_address": contract_address}
+
+    response = requests.get(base_url, headers=headers, params=params, timeout=30)
+
+    if response.status_code == 200:
+        data = response.json()
+        print("data:", data)
+        if "assets" in data and len(data["assets"]) > 0:
+            return data["assets"][0]["image_url"]
+    else:
+        print(f"😖 Response failed: {response.text}")
+    return None
+
+
+def get_nft_token_ids(contract_address: str, wallet_address: str):
+    # Initialize Web3
+    w3 = Web3(Web3.HTTPProvider("https://1rpc.io/eth"))
+    contract_address = Web3.to_checksum_address(contract_address)
+
+    # Define the filter parameters
+    wallet_address_padded = wallet_address[2:]  # Remove '0x'
+    wallet_address_padded = (
+        "0" * (64 - len(wallet_address_padded)) + wallet_address_padded
+    )
+    wallet_address_padded = "0x" + wallet_address_padded  # Add '0x' back
+
+    filter_params = {
+        "fromBlock": "earliest",
+        "toBlock": "latest",
+        "address": contract_address,
+        "topics": [None, None, wallet_address_padded],
+    }
+    print(
+        f"🔎 Fetching logs for contract {contract_address} and wallet address {wallet_address}"  # noqa: E501
+    )
+    print(f"🔎 Filter parameters: {filter_params}")
+
+    # Get logs
+    logs = w3.eth.get_logs(filter_params)
+    print(f"🔎 Found {len(logs)} logs")
+
+    token_ids = []
+
+    # Extract token IDs from logs
+    for log in logs:
+        print(log)
+        hex_str = log["topics"][3].hex()
+        token_id = int(hex_str, 16)  # Convert hexadecimal to integer
+        token_ids.append(token_id)
+
+    return token_ids
 
 
 def check_website(website_id: int):

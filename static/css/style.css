@@ -82,6 +82,12 @@ a.svg-btn:visited {
   border-bottom: none;
 }
 
+a.img-link:link,
+a.img-link:visited {
+  text-decoration: none;
+  border-bottom: none;
+}
+
 code {
   font-family: var(--mono-font-family);
 }
@@ -460,10 +466,16 @@ img.screenshot {
   grid-gap: 10px;
 }
 
+.nft-gallery.tight {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .nft img {
   width: 100%;
   border-radius: 2px;
   box-shadow: var(--shadows);
+  aspect-ratio: 1/1;
+  object-fit: cover;
 }
 
 .nft .caption {
@@ -764,6 +776,36 @@ ul:last-child {
   font-size: 14px;
 }
 
+.nft-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.nft-bar-item {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: var(--shadows);
+  margin-right: -12px;
+  border: 2px solid #fff;
+  vertical-align: bottom;
+}
+
+.nft-bar-label {
+  font-size: 12px;
+  color: var(--color-secondary);
+  flex: 1;
+  padding-left: 10px;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.25);
+}
+
 /* adjustments for small screens <= 400px */
 
 @media screen and (max-width: 400px) {
@@ -774,6 +816,24 @@ ul:last-child {
   .account-badge .account-avatar {
     border-radius: 16px;
     box-shadow: var(--shadows);
+  }
+
+  .nft-gallery.tight {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* For NFT Gallery */
+
+@media screen and (min-width: 401px) and (max-width: 800px) {
+  .nft-gallery.tight {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (min-width: 801px) and (max-width: 1200px) {
+  .nft-gallery.tight {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
