@@ -50,6 +50,26 @@ source.onmessage = function(message) {
 {% block content %}
 {{ web_session_message()|safe }}
 {{ breadcrumb(['Websites:/websites', website.name + ':/websites/' + str(website.id)])|safe }}
+<form method="post" action="/websites/remove/{{ website.id}}" id="remove-website-{{ website.id }}">
+{{ xsrf_form_html()|safe }}
+</form>
+<template id="tasklog-item-template">
+  <div class="tasklog-item">
+  <div class="tasklog-item-top">
+    <img class="tasklog-item-icon" height="16" />
+    <div class="tasklog-item-event"></div>
+    <div class="tasklog-item-time"></div>
+  </div>
+  <div class="tasklog-item-bottom">
+  </div>
+  </div>
+</template>
+<template id="website-item-detail">
+  <div class="item-detail">
+    <span class="item-detail-label"></span>
+    <span class="item-detail-content"></span>
+  </div>
+</template>
 <div class="box">
 <section>
 {% include 'desktop/common/website_item.html' %}
@@ -99,24 +119,4 @@ source.onmessage = function(message) {
 {% endfor %}
 </section>
 </div>
-<form method="post" action="/websites/remove/{{ website.id}}" id="remove-website-{{ website.id }}">
-{{ xsrf_form_html()|safe }}
-</form>
-<template id="tasklog-item-template">
-  <div class="tasklog-item">
-  <div class="tasklog-item-top">
-    <img class="tasklog-item-icon" height="16" />
-    <div class="tasklog-item-event"></div>
-    <div class="tasklog-item-time"></div>
-  </div>
-  <div class="tasklog-item-bottom">
-  </div>
-  </div>
-</template>
-<template id="website-item-detail">
-  <div class="item-detail">
-    <span class="item-detail-label"></span>
-    <span class="item-detail-content"></span>
-  </div>
-</template>
 {% endblock %}

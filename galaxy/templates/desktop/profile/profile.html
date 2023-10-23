@@ -19,6 +19,7 @@
     {% endif %}
   </script>
 </div>
+{% if account.nfts.__len__() > 0 %}
 <div class="box">
   {{ account.nfts.__len__() }} collab NFTs
 
@@ -34,6 +35,7 @@
   <p>Since you own NFTs from projects by Pinnable's friends, you've gained {{ account.nfts.__len__() }} extra website{% if account.nfts.__len__() > 1 %}s{% endif %} and {{ account.nfts.__len__() }} GB of additional storage space.</p>
 
 </div>
+{% endif %}
 <div class="box">
   <div class="flex-one-row">
   <a href="/websites" class="btn">

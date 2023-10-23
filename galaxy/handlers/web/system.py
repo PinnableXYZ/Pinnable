@@ -25,12 +25,16 @@ class SystemAuthHandler(WebHandler):
             message = message.replace("\r\n", "\n")
             message = message.replace("\r", "\n")
             self.set_header("Content-Type", "text/plain")
+            siwe_message = None
             try:
-                siwe_message: SiweMessage = SiweMessage(message=message)
+                siwe_message = SiweMessage(message=message)
                 siwe_message.verify(signature)
             except Exception as e:
+                # TODO: handle this possible issue
                 self.values["error"] = "Authentication failed: " + str(e)
-            if hasattr(siwe_message, "expiration_time"):
+                self.redirect("/")
+                self.finish()
+            if siwe_message is not None and hasattr(siwe_message, "expiration_time"):
                 expiration = siwe_message.expiration_time
                 dt = datetime.strptime(expiration, "%Y-%m-%dT%H:%M:%S.%fZ")
                 unix_timestamp = int(time.mktime(dt.timetuple()))
