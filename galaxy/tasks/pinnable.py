@@ -104,7 +104,7 @@ def check_account(account_id: int):
         balance = JBTokenStore_contract.functions.balanceOf(eth_address, 471).call()
 
         dwb_balance = balance / 10**18
-        print(f"⭐️ Token balance for address {eth_address}: {dwb_balance}")
+        print(f"⭐️ DWB balance for address {eth_address}: {dwb_balance}")
 
         account.dwb_balance = dwb_balance
         account.last_checked = int(time.time())
@@ -116,6 +116,7 @@ def check_account(account_id: int):
     # Check if this address has any qualifying NFTs
     nft_collections = NFTOwnership.collab_nft_collections()
     for contract_address in nft_collections:
+        collection_name = nft_collections[contract_address]
         token_ids = get_nft_token_ids(contract_address, account.address)
         for token_id in token_ids:
             chain = "ethereum"
@@ -142,6 +143,7 @@ def check_account(account_id: int):
                 token.account_id = account.id
                 token.last_checked = int(time.time())
                 session.commit()
+            print(f"🎨 Found {collection_name} #{token_id} for Account #{account.id}")
 
             image_url = get_nft_image_url(contract_address, token_id)
             if image_url is not None:
@@ -164,7 +166,6 @@ def get_nft_image_url(contract_address, token_id):
 
     if response.status_code == 200:
         data = response.json()
-        print("data:", data)
         if "assets" in data and len(data["assets"]) > 0:
             return data["assets"][0]["image_url"]
     else:
@@ -173,6 +174,8 @@ def get_nft_image_url(contract_address, token_id):
 
 
 def get_nft_token_ids(contract_address: str, wallet_address: str):
+    nft_collections = NFTOwnership.collab_nft_collections()
+    collection_name = nft_collections[contract_address.lower()]
     # Initialize Web3
     w3 = Web3(Web3.HTTPProvider("https://1rpc.io/eth"))
     contract_address = Web3.to_checksum_address(contract_address)
@@ -190,20 +193,15 @@ def get_nft_token_ids(contract_address: str, wallet_address: str):
         "address": contract_address,
         "topics": [None, None, wallet_address_padded],
     }
-    print(
-        f"🔎 Fetching logs for contract {contract_address} and wallet address {wallet_address}"  # noqa: E501
-    )
-    print(f"🔎 Filter parameters: {filter_params}")
 
     # Get logs
     logs = w3.eth.get_logs(filter_params)
-    print(f"🔎 Found {len(logs)} logs")
+    print(f"🔎 Found {len(logs)} NFT transfer logs in {collection_name}")
 
     token_ids = []
 
     # Extract token IDs from logs
     for log in logs:
-        print(log)
         hex_str = log["topics"][3].hex()
         token_id = int(hex_str, 16)  # Convert hexadecimal to integer
         token_ids.append(token_id)
