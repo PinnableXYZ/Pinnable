@@ -1,1 +1,1 @@
-This folder contains the latest database structure in `pinnable.sql` file. It is dumped with phpMyAdmin.
+This folder contains the latest database structure in the `pinnable.sql` file, which was dumped using phpMyAdmin. At the moment, I'm undecided about using Alembic. For now, I'll use this file to keep track of the database structure.
