@@ -19,16 +19,18 @@
     {% endif %}
   </script>
 </div>
-{% if account.nfts.__len__() > 0 %}
+{% if account.nfts_count > 0 %}
 <div class="box">
-  {{ account.nfts.__len__() }} collab NFTs
+  {{ account.nfts_count }} collab NFTs
 
   <div class="nft-gallery tight">
   {% for nft in account.nfts %}
+  {% if nft.image_url %}
     <figure class="nft">
       <a href="https://opensea.io/assets/{{ nft.chain }}/{{ nft.contract }}/{{ nft.token_id }}" target="_blank" class="img-link"><img src="{{ nft.image_url }}" alt="{{ nft.collection_name }} - {{ nft.token_id }}" /></a>
       <figcaption class="caption"><a href="https://opensea.io/assets/{{ nft.chain }}/{{ nft.contract }}/{{ nft.token_id }}" target="_blank"><strong>{{ nft.token_id }}</strong><br />{{ nft.collection_name|e }}</a></figcaption>
     </figure>
+  {% endif %}
   {% endfor %}
   </div>
 

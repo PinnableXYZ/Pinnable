@@ -7,14 +7,16 @@
     <span class="item-detail-content">{{ account.dwb_balance|format_tokens }}</span>
   </div>
 
-  {% if account.nfts.__len__() > 0 %}
+  {% if account.nfts_count > 0 %}
     <div class="nft-bar">
       <div class="nft-bar-nfts">
         {% for nft in account.nfts %}
+        {% if nft.image_url %}
           <img src="{{ nft.image_url }}" class="nft-bar-item" />
+        {% endif %}
         {% endfor %}
       </div>
-      <div class="nft-bar-label"><a href="/profile">+ {{ account.nfts.__len__() }} collab NFTs</a></div>
+      <div class="nft-bar-label"><a href="/profile">+ {{ account.nfts_count }} collab NFTs</a></div>
     </div>
   {% endif %}
 

@@ -49,6 +49,14 @@ class Account(Base):
         return self.address[:6] + "..." + self.address[-4:]
 
     @property
+    def nfts_count(self):
+        i = 0
+        for nft in self.nfts:
+            if nft.image_url is not None:
+                i = i + 1
+        return i
+
+    @property
     def quota(self) -> dict:
         _quota = getattr(self, "_quota", None)
         if _quota is not None:
@@ -79,9 +87,10 @@ class Account(Base):
             quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
 
         # quota from NFT
-        for _nft in self.nfts:
-            quota["total_websites"] = quota["total_websites"] + 1
-            quota["total_size"] = quota["total_size"] + (1 * ONE_GIGA_BYTE)
+        for nft in self.nfts:
+            if nft.image_url is not None:
+                quota["total_websites"] = quota["total_websites"] + 1
+                quota["total_size"] = quota["total_size"] + (1 * ONE_GIGA_BYTE)
 
         quota["used_websites"] = len(self.websites)
 

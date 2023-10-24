@@ -202,9 +202,10 @@ def get_nft_token_ids(contract_address: str, wallet_address: str):
 
     # Extract token IDs from logs
     for log in logs:
-        hex_str = log["topics"][3].hex()
-        token_id = int(hex_str, 16)  # Convert hexadecimal to integer
-        token_ids.append(token_id)
+        if "topics" in log and len(log["topics"]) > 3:
+            hex_str = log["topics"][3].hex()
+            token_id = int(hex_str, 16)  # Convert hexadecimal to integer
+            token_ids.append(token_id)
 
     return token_ids
 
