@@ -20,7 +20,7 @@ class DLPlanetHandler(WebHandler):
 
 class DLCroptopHandler(WebHandler):
     def get(self):
-        default_address = "https://github.com/Planetable/Planet/releases/download/croptop-20230831-1/Croptop.zip"  # noqa: E501
+        default_address = "https://github.com/Planetable/Planet/releases/download/croptop-20240129-1/Croptop.zip"  # noqa: E501
         mc_key = "dl:croptop:latest"
         mc_value = self.mc.get(mc_key)
         if mc_value is not None:
