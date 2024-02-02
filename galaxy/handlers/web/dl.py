@@ -7,7 +7,7 @@ from galaxy.tasks.dl import check_update
 class DLPlanetHandler(WebHandler):
     def get(self):
         default_address = "https://github.com/Planetable/Planet/releases/download/release-0.14.1/Planet.zip"  # noqa: E501
-        mc_key = "dl:planet:latest"
+        mc_key = "dl:planet:latest:link"
         mc_value = self.mc.get(mc_key)
         if mc_value is not None:
             self.redirect(mc_value)
@@ -21,7 +21,7 @@ class DLPlanetHandler(WebHandler):
 class DLCroptopHandler(WebHandler):
     def get(self):
         default_address = "https://github.com/Planetable/Planet/releases/download/croptop-20240129-1/Croptop.zip"  # noqa: E501
-        mc_key = "dl:croptop:latest"
+        mc_key = "dl:croptop:latest:link"
         mc_value = self.mc.get(mc_key)
         if mc_value is not None:
             self.redirect(mc_value)
