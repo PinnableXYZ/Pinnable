@@ -6,7 +6,7 @@ import config
 
 
 def check_update(app, appcast):
-    mc_key = "dl:" + app + ":latest"
+    mc_key = "dl:" + app + ":latest:link"
     # Read appcast.xml
     r = requests.get(appcast, timeout=30)
     if r.status_code != 200:
@@ -32,5 +32,5 @@ def check_update(app, appcast):
             binary=True,
             behaviors={"tcp_nodelay": True, "ketama": True},
         )
-        mc.set(mc_key, mc_value)
+        mc.set(mc_key, mc_value, 60)
         print("Updated " + app + " to " + version)
