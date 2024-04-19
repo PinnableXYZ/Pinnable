@@ -20,6 +20,62 @@ r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
 
 
+def clean_up():
+    session = Session()
+    websites = session.query(Website).all()
+
+    deleted_duplicated_resolved_to_ipns = 0
+    deleted_duplicated_pinned = 0
+    deleted_failed_to_resolve_ens = 0
+
+    for website in websites:
+        pinned = []
+        resolved_to_ipns = []
+        logs = (
+            session.query(WebsiteTaskLog)
+            .filter(WebsiteTaskLog.website_id == website.id)
+            .all()
+        )
+        for log in logs:
+            event = str(log.event)
+
+            # Resolved to IPNS
+            if "Resolved to IPNS" in event:
+                if log.ipns not in resolved_to_ipns:
+                    print(f"🌐 Resolved {website.name} to {log.ipns}")
+                    resolved_to_ipns.append(log.ipns)
+                else:
+                    print(f"😚 {website.name} is already resolved to {log.ipns}")
+                    session.delete(log)
+                    session.commit()
+                    deleted_duplicated_resolved_to_ipns += 1
+
+            # Pinend
+            if log.event == "Pinned":
+                if log.cid not in pinned:
+                    print(f"📌 Pinned {website.name} to {log.cid}")
+                    pinned.append(log.cid)
+                else:
+                    print(f"😚 {website.name} is already pinned to {log.cid}")
+                    session.delete(log)
+                    session.commit()
+                    deleted_duplicated_pinned += 1
+
+            # Failed to resolve ENS name
+            if "Failed to resolve ENS name" in event:
+                session.delete(log)
+                session.commit()
+                deleted_failed_to_resolve_ens += 1
+
+    print("🧹 Cleaned up WebsiteTaskLogs")
+
+    print("Deleted duplicated `Resolve to IPNS`:", deleted_duplicated_resolved_to_ipns)
+    print("Deleted duplicated `Pinned`:", deleted_duplicated_pinned)
+    print("Deleted `Failed to resolve ENS name`:", deleted_failed_to_resolve_ens)
+
+    session.close()
+
+
 def resolve_address(account_id: int):
     session = Session()
     account = session.query(Account).filter(Account.id == account_id).first()
