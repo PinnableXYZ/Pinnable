@@ -806,6 +806,20 @@ ul:last-child {
   text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.25);
 }
 
+pre.cmd {
+  max-width: 100%;
+  display: block;
+  white-space: pre-wrap;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+pre.cmd code {
+  font-size: 14px;
+  line-break: anywhere;
+}
+
 /* adjustments for small screens <= 400px */
 
 @media screen and (max-width: 400px) {

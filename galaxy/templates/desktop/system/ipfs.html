@@ -1,0 +1,24 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block title %}IPFS{% endblock %}
+{% block content %}
+<div class="box">
+  <h1>IPFS</h1>
+  <section>
+  <p>If you are running your own IPFS nodes, please feel free to peer with us. Robust peering will make the entire network faster at finding content.</p>
+  </section>
+</div>
+<div class="box">
+  <h2>Nodes</h2>
+  <section>These are our nodes, and you can use these IPFS commands to peer with us.</section>
+  {% for peer in ipfs_peers %}
+  <h3>{{ peer.ipv4 }}</h3>
+  <ul>
+    <li>ID: <code>{{ peer.id }}</code></li>
+    <li>IPv6: <code>{{ peer.ipv6 }}</code></li>
+    <li>Location: {{ peer.location|e }}</li>
+  </ul>
+  <pre class="cmd"><code>ipfs swarm peering add /ip4/{{ peer.ipv4 }}/tcp/4001/p2p/{{ peer.id }}</code></pre>
+  <pre class="cmd"><code>ipfs swarm peering add /ip6/{{ peer.ipv6 }}/tcp/4001/p2p/{{ peer.id }}</code></pre>
+  {% endfor %}
+</div>
+{% endblock %}

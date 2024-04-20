@@ -5,6 +5,7 @@ from datetime import datetime
 
 from siwe import SiweMessage
 
+import config
 from galaxy.handlers.web import WebHandler
 from galaxy.tasks.pinnable import check_account
 
@@ -72,6 +73,14 @@ class SystemPlanetHandler(WebHandler):
         self.finalize("system/planet.html")
 
 
+class SystemIPFSHandler(WebHandler):
+    def get(self):
+        # Icon from IPFS icon
+        self.values["theme_color"] = "#82c8cf"
+        self.values["ipfs_peers"] = config.ipfs_peers
+        self.finalize("system/ipfs.html")
+
+
 class SystemSignOutHandler(WebHandler):
     def post(self):
         if self.current_user is not None:
@@ -92,4 +101,5 @@ system_handlers = [
     (r"/signout/?$", SystemSignOutHandler),
     (r"/pricing/?$", SystemPricingHandler),
     (r"/planet/?$", SystemPlanetHandler),
+    (r"/ipfs/?$", SystemIPFSHandler),
 ]
