@@ -14,7 +14,9 @@ import config
 from galaxy.models.pinnable import Account, NFTOwnership, Website, WebsiteTaskLog
 from galaxy.utils.filters import format_bytes
 
-engine = create_engine(config.database_url, pool_size=20, max_overflow=40)
+engine = create_engine(
+    config.database_url, pool_size=20, max_overflow=40, isolation_level="READ COMMITTED"
+)
 Session = scoped_session(sessionmaker(bind=engine))
 r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
@@ -50,7 +52,7 @@ def clean_up():
                     session.commit()
                     deleted_duplicated_resolved_to_ipns += 1
 
-            # Pinend
+            # Pinned
             if log.event == "Pinned":
                 if log.cid not in pinned:
                     print(f"📌 Pinned {website.name} to {log.cid}")
@@ -292,13 +294,30 @@ def check_website(website_id: int):
                         if ipns.endswith("/"):
                             ipns = ipns[:-1]
                         if website.last_known_ipns != ipns:
-                            tasklog = WebsiteTaskLog()
-                            tasklog.website_id = website.id
-                            tasklog.event = "Resolved to IPNS"
-                            tasklog.icon = "network"
-                            tasklog.ipns = ipns
-                            tasklog.created = int(time.time())
-                            session.add(tasklog)
+                            session.expire_all()
+                            recent_tasklog = (
+                                session.query(WebsiteTaskLog)
+                                .filter(
+                                    WebsiteTaskLog.website_id == website.id,
+                                    WebsiteTaskLog.event == "Resolved to IPNS",
+                                    WebsiteTaskLog.ipns == ipns,
+                                )
+                                .order_by(WebsiteTaskLog.created.desc())
+                                .first()
+                            )
+                            if recent_tasklog is None:
+                                tasklog = WebsiteTaskLog()
+                                tasklog.website_id = website.id
+                                tasklog.event = "Resolved to IPNS"
+                                tasklog.icon = "network"
+                                tasklog.ipns = ipns
+                                tasklog.created = int(time.time())
+                                session.add(tasklog)
+                            else:
+                                print(
+                                    f"♻️ IPNS task log found for {website.name} - {ipns}"  # noqa
+                                )
+                                recent_tasklog.created = int(time.time())
 
                             website.last_known_ipns = ipns
                         website.last_checked = int(time.time())
@@ -311,6 +330,40 @@ def check_website(website_id: int):
                             # Pin the website
                             q.enqueue(pin_website, website.id)
                 else:
+                    session.expire_all()
+                    previous_tasklog = (
+                        session.query(WebsiteTaskLog)
+                        .filter(
+                            WebsiteTaskLog.website_id == website.id,
+                            WebsiteTaskLog.event == "Failed to resolve ENS name",
+                        )
+                        .order_by(WebsiteTaskLog.created.desc())
+                        .first()
+                    )
+                    if previous_tasklog is None:
+                        tasklog = WebsiteTaskLog()
+                        tasklog.website_id = website.id
+                        tasklog.event = f"Failed to resolve ENS name: {website.name}"
+                        tasklog.icon = "questionmark.circle.fill"
+                        tasklog.created = int(time.time())
+                        session.add(tasklog)
+                        session.commit()
+                        print(f"😖 Failed to resolve ENS name: {website.name}")
+                    else:
+                        previous_tasklog.created = int(time.time())
+                        session.commit()
+            else:
+                session.expire_all()
+                previous_tasklog = (
+                    session.query(WebsiteTaskLog)
+                    .filter(
+                        WebsiteTaskLog.website_id == website.id,
+                        WebsiteTaskLog.event == "Failed to resolve ENS name",
+                    )
+                    .order_by(WebsiteTaskLog.created.desc())
+                    .first()
+                )
+                if previous_tasklog is None:
                     tasklog = WebsiteTaskLog()
                     tasklog.website_id = website.id
                     tasklog.event = f"Failed to resolve ENS name: {website.name}"
@@ -319,15 +372,9 @@ def check_website(website_id: int):
                     session.add(tasklog)
                     session.commit()
                     print(f"😖 Failed to resolve ENS name: {website.name}")
-            else:
-                tasklog = WebsiteTaskLog()
-                tasklog.website_id = website.id
-                tasklog.event = f"😖 Failed to resolve ENS name: {website.name}"
-                tasklog.icon = "questionmark.circle.fill"
-                tasklog.created = int(time.time())
-                session.add(tasklog)
-                session.commit()
-                print(f"Failed to resolve ENS name: {website.name}")
+                else:
+                    previous_tasklog.created = int(time.time())
+                    session.commit()
         except Exception as e:
             print(e)
     if website.last_known_cid is not None:
@@ -371,6 +418,7 @@ def pin_website(website_id: int):
                 cid_tasklog = None
                 if website.last_known_cid != cid:
                     print(f"📌 Pinned {website.name} to {cid}")
+                    session.expire_all()
                     recent_tasklog = (
                         session.query(WebsiteTaskLog)
                         .filter(
@@ -382,6 +430,7 @@ def pin_website(website_id: int):
                         .first()
                     )
                     if recent_tasklog is None:
+                        print(f"🈳 Task log not found for {website.name} - {cid}")
                         tasklog = WebsiteTaskLog()
                         tasklog.website_id = website.id
                         tasklog.event = "Pinned"
@@ -391,6 +440,9 @@ def pin_website(website_id: int):
                         session.add(tasklog)
                         cid_tasklog = tasklog
                     else:
+                        print(
+                            f"♻️ A recent task log is found for {website.name} - {cid}"
+                        )
                         recent_tasklog.created = int(time.time())
                         cid_tasklog = recent_tasklog
 
