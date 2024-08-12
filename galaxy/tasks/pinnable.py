@@ -22,6 +22,22 @@ r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
 
 
+def test_clean_up(website_id: int):
+    session = Session()
+    website = session.query(Website).filter(Website.id == website_id).first()
+    if website is not None:
+        event = f"Failed to resolve ENS name: {website.name}"
+        tasklog = (
+            session.query(WebsiteTaskLog)
+            .filter(
+                WebsiteTaskLog.website_id == website.id, WebsiteTaskLog.event == event
+            )
+            .all()
+        )
+        for log in tasklog:
+            print(f"🧹 Cleaning up {website.name} - {log.event}")
+
+
 def clean_up():
     session = Session()
     websites = session.query(Website).all()
@@ -339,7 +355,6 @@ def check_website(website_id: int):
                             WebsiteTaskLog.website_id == website.id,
                             WebsiteTaskLog.event == event,
                         )
-                        .order_by(WebsiteTaskLog.created.desc())
                         .first()
                     )
                     if previous_tasklog is None:
@@ -363,7 +378,6 @@ def check_website(website_id: int):
                         WebsiteTaskLog.website_id == website.id,
                         WebsiteTaskLog.event == event,
                     )
-                    .order_by(WebsiteTaskLog.created.desc())
                     .first()
                 )
                 if previous_tasklog is None:
