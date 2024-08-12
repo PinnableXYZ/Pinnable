@@ -185,6 +185,7 @@ class WebsiteTaskLog(Base):
     __tablename__ = "WebsiteTaskLog"
     __table_arts__ = (
         sa.Index("website_id", "website_id"),
+        sa.Index("event", "event"),
         {"comment": "Website Task Log"},
     )
     website_id = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
