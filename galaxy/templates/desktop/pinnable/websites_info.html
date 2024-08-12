@@ -111,8 +111,8 @@ source.onmessage = function(message) {
   </div>
   {% if item.cid != None or item.ipns != None %}
   <div class="tasklog-item-bottom">
-    {% if item.cid %}CID: {{ item.cid }}{% endif %}
-    {% if item.ipns %}IPNS: {{ item.ipns }}{% endif %}
+    {% if item.cid %}CID: <a href="https://eth.sucks/ipfs/{{ item.cid }}" target="_blank" class="secondary">{{ item.cid }}</a>{% endif %}
+    {% if item.ipns %}IPNS: <a href="https://eth.sucks/ipns/{{ item.cid }}" target="_blank" class="secondary">{{ item.ipns }}</a>{% endif %}
   </div>
   {% endif %}
 </div>

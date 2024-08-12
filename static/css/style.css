@@ -88,6 +88,19 @@ a.img-link:visited {
   border-bottom: none;
 }
 
+a.secondary:link,
+a.secondary:visited {
+  color: var(--color-secondary);
+  text-decoration: none;
+  border-bottom: none;
+}
+
+a.secondary:hover {
+  color: var(--color-link-hover);
+  text-decoration: underline;
+  border-bottom: none;
+}
+
 code {
   font-family: var(--mono-font-family);
 }

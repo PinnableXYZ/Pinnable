@@ -311,31 +311,7 @@ def check_website(website_id: int):
                         if ipns.endswith("/"):
                             ipns = ipns[:-1]
                         if website.last_known_ipns != ipns:
-                            session.expire_all()
-                            recent_tasklog = (
-                                session.query(WebsiteTaskLog)
-                                .filter(
-                                    WebsiteTaskLog.website_id == website.id,
-                                    WebsiteTaskLog.event == "Resolved to IPNS",
-                                    WebsiteTaskLog.ipns == ipns,
-                                )
-                                .order_by(WebsiteTaskLog.created.desc())
-                                .first()
-                            )
-                            if recent_tasklog is None:
-                                tasklog = WebsiteTaskLog()
-                                tasklog.website_id = website.id
-                                tasklog.event = "Resolved to IPNS"
-                                tasklog.icon = "network"
-                                tasklog.ipns = ipns
-                                tasklog.created = int(time.time())
-                                session.add(tasklog)
-                            else:
-                                print(
-                                    f"♻️ IPNS task log found for {website.name} - {ipns}"  # noqa
-                                )
-                                recent_tasklog.created = int(time.time())
-
+                            create_tasklog_resolved_to_ipns(website.id, ipns)
                             website.last_known_ipns = ipns
                         website.last_checked = int(time.time())
                     session.commit()
@@ -383,9 +359,7 @@ def create_tasklog_failed_to_resolve_ens(website_id: int):
     event = f"Failed to resolve ENS name: {website.name}"
     tasklog = (
         session.query(WebsiteTaskLog)
-        .filter(
-            WebsiteTaskLog.website_id == website.id, WebsiteTaskLog.event == event
-        )
+        .filter(WebsiteTaskLog.website_id == website.id, WebsiteTaskLog.event == event)
         .first()
     )
     if tasklog is None:
@@ -401,6 +375,41 @@ def create_tasklog_failed_to_resolve_ens(website_id: int):
         tasklog.created = int(time.time())
         session.commit()
         print(f"♻️ Task log found for {website.name} - {event}")
+    session.close()
+
+
+def create_tasklog_resolved_to_ipns(website_id: int, ipns: str):
+    session = Session()
+    website = session.query(Website).filter(Website.id == website_id).first()
+    if website is None:
+        print(f"😖 Website (id={website_id}) not found")
+        session.close()
+        return
+    event = "Resolved to IPNS"
+    tasklog = (
+        session.query(WebsiteTaskLog)
+        .filter(
+            WebsiteTaskLog.website_id == website.id,
+            WebsiteTaskLog.event == event,
+            WebsiteTaskLog.ipns == ipns,
+        )
+        .order_by(WebsiteTaskLog.created.desc())
+        .first()
+    )
+    if tasklog is None:
+        tasklog = WebsiteTaskLog()
+        tasklog.website_id = website.id
+        tasklog.event = event
+        tasklog.icon = "network"
+        tasklog.ipns = ipns
+        tasklog.created = int(time.time())
+        session.add(tasklog)
+        session.commit()
+        print(f"🌐 Created task log for {website.name} - {event} - {ipns}")
+    else:
+        tasklog.created = int(time.time())
+        session.commit()
+        print(f"♻️ Task log found for {website.name} - {event} - {ipns}")
     session.close()
 
 
