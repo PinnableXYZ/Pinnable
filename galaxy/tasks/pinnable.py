@@ -31,6 +31,7 @@ def clean_up():
     deleted_failed_to_resolve_ens = 0
 
     for website in websites:
+        print(f"🧹 Cleaning up logs for {website.name}")
         pinned = []
         resolved_to_ipns = []
         logs = (
