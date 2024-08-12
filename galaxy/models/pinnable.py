@@ -150,7 +150,7 @@ class Website(Base):
         "WebsiteTaskLog",
         back_populates="website",
         primaryjoin="Website.id == foreign(WebsiteTaskLog.website_id)",
-        order_by="desc(WebsiteTaskLog.created)",
+        order_by="desc(WebsiteTaskLog.id)",
     )
 
     @property
