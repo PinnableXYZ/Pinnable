@@ -336,7 +336,8 @@ def check_website(website_id: int):
                         session.query(WebsiteTaskLog)
                         .filter(
                             WebsiteTaskLog.website_id == website.id,
-                            WebsiteTaskLog.event == "Failed to resolve ENS name",
+                            WebsiteTaskLog.event
+                            == f"Failed to resolve ENS name: {website.name}",  # noqa
                         )
                         .order_by(WebsiteTaskLog.created.desc())
                         .first()
@@ -359,7 +360,8 @@ def check_website(website_id: int):
                     session.query(WebsiteTaskLog)
                     .filter(
                         WebsiteTaskLog.website_id == website.id,
-                        WebsiteTaskLog.event == "Failed to resolve ENS name",
+                        WebsiteTaskLog.event
+                        == f"Failed to resolve ENS name: {website.name}",
                     )
                     .order_by(WebsiteTaskLog.created.desc())
                     .first()
