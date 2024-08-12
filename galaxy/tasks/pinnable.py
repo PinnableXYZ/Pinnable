@@ -44,7 +44,7 @@ def clean_up():
             # Resolved to IPNS
             if "Resolved to IPNS" in event:
                 if log.ipns not in resolved_to_ipns:
-                    print(f"🌐 Resolved {website.name} to {log.ipns}")
+                    # print(f"🌐 Resolved {website.name} to {log.ipns}")
                     resolved_to_ipns.append(log.ipns)
                 else:
                     print(f"😚 {website.name} is already resolved to {log.ipns}")
@@ -55,7 +55,7 @@ def clean_up():
             # Pinned
             if log.event == "Pinned":
                 if log.cid not in pinned:
-                    print(f"📌 Pinned {website.name} to {log.cid}")
+                    # print(f"📌 Pinned {website.name} to {log.cid}")
                     pinned.append(log.cid)
                 else:
                     print(f"😚 {website.name} is already pinned to {log.cid}")
