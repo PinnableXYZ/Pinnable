@@ -347,51 +347,9 @@ def check_website(website_id: int):
                             # Pin the website
                             q.enqueue(pin_website, website.id)
                 else:
-                    session.expire_all()
-                    event = f"Failed to resolve ENS name: {website.name}"
-                    previous_tasklog = (
-                        session.query(WebsiteTaskLog)
-                        .filter(
-                            WebsiteTaskLog.website_id == website.id,
-                            WebsiteTaskLog.event == event,
-                        )
-                        .first()
-                    )
-                    if previous_tasklog is None:
-                        tasklog = WebsiteTaskLog()
-                        tasklog.website_id = website.id
-                        tasklog.event = event
-                        tasklog.icon = "questionmark.circle.fill"
-                        tasklog.created = int(time.time())
-                        session.add(tasklog)
-                        session.commit()
-                        print(f"😖 Failed to resolve ENS name: {website.name}")
-                    else:
-                        previous_tasklog.created = int(time.time())
-                        session.commit()
+                    create_tasklog_failed_to_resolve_ens(website.id)
             else:
-                session.expire_all()
-                event = f"Failed to resolve ENS name: {website.name}"
-                previous_tasklog = (
-                    session.query(WebsiteTaskLog)
-                    .filter(
-                        WebsiteTaskLog.website_id == website.id,
-                        WebsiteTaskLog.event == event,
-                    )
-                    .first()
-                )
-                if previous_tasklog is None:
-                    tasklog = WebsiteTaskLog()
-                    tasklog.website_id = website.id
-                    tasklog.event = event
-                    tasklog.icon = "questionmark.circle.fill"
-                    tasklog.created = int(time.time())
-                    session.add(tasklog)
-                    session.commit()
-                    print(f"😖 Failed to resolve ENS name: {website.name}")
-                else:
-                    previous_tasklog.created = int(time.time())
-                    session.commit()
+                create_tasklog_failed_to_resolve_ens(website.id)
         except Exception as e:
             print(e)
     if website.last_known_cid is not None:
@@ -412,6 +370,37 @@ def check_website(website_id: int):
                     )
         except Exception as e:
             print(e)
+    session.close()
+
+
+def create_tasklog_failed_to_resolve_ens(website_id: int):
+    session = Session()
+    website = session.query(Website).filter(Website.id == website_id).first()
+    if website is None:
+        print(f"😖 Website (id={website_id}) not found")
+        session.close()
+        return
+    event = f"Failed to resolve ENS name: {website.name}"
+    tasklog = (
+        session.query(WebsiteTaskLog)
+        .filter(
+            WebsiteTaskLog.website_id == website.id, WebsiteTaskLog.event == event
+        )
+        .first()
+    )
+    if tasklog is None:
+        tasklog = WebsiteTaskLog()
+        tasklog.website_id = website.id
+        tasklog.event = event
+        tasklog.icon = "questionmark.circle.fill"
+        tasklog.created = int(time.time())
+        session.add(tasklog)
+        session.commit()
+        print(f"🧞‍♂️ Created task log for {website.name} - {event}")
+    else:
+        tasklog.created = int(time.time())
+        session.commit()
+        print(f"♻️ Task log found for {website.name} - {event}")
     session.close()
 
 
