@@ -3,8 +3,26 @@
 
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta charset="utf-8">
   <title>{% block title %}Pinnable{% endblock %}</title>
+  <meta name="description" content="Pinning service for ENS+IPFS websites">
   <link rel="icon" href="{{ static_url('img/dwb-icon-128.png') }}" type="image/png">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://pinnable.xyz/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pinnable">
+  <meta property="og:description" content="Pinning service for ENS+IPFS websites">
+  <meta property="og:image" content="{{ static_url('img/dwb-icon-128.png') }}">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:domain" content="pinnable.xyz">
+  <meta property="twitter:url" content="https://pinnable.xyz/">
+  <meta name="twitter:title" content="Pinnable">
+  <meta name="twitter:description" content="Pinning service for ENS+IPFS websites">
+  <meta name="twitter:image" content="{{ static_url('img/dwb-icon-128.png') }}">
+
   <link rel="stylesheet" type="text/css" href="{{ static_url('css/style.css') }}">
   <script type="text/javascript" src="{{ static_url('js/vendor/ethers.umd.min.js') }}"></script>
   <script type="text/javascript" src="{{ static_url('js/main.js') }}"></script>
