@@ -224,8 +224,15 @@ class NFTOwnership(Base):
     @classmethod
     def collab_nft_collections(cls):
         return {
-            "0xcdb7c1a6fe7e112210ca548c214f656763e13533": "Ready Player Cat",
+            "0xcdb7c1a6fe7e112210ca548c214f656763e13533": "Ready Player Club",
             "0xd8b4359143eda5b2d763e127ed27c77addbc47d3": "Juicebox Projects",
+        }
+
+    @classmethod
+    def collab_nft_slugs(cls):
+        return {
+            "ready-player-club": "Ready Player Club",
+            "juicebox-projects-izoueqjqrr": "Juicebox Projects",
         }
 
     @property
