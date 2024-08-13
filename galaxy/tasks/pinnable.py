@@ -145,9 +145,7 @@ def check_account(account_id: int):
 
     try:
         # Set up the Ethereum provider
-        provider = (
-            "https://ethereum.publicnode.com"  # Replace with your Infura Project ID
-        )
+        provider = "https://eth.llamarpc.com"
         w3 = Web3(Web3.HTTPProvider(provider))
 
         # Token contract and Ethereum address
@@ -233,18 +231,18 @@ def check_account(account_id: int):
 
 
 def get_nft_image_url(contract_address, token_id):
-    base_url = "https://api.opensea.io/api/v1/assets"
+    base_url = f"https://api.opensea.io/api/v2/chain/ethereum/contract/{ contract_address }/nfts/{ token_id }"  # noqa
     headers = {"X-API-KEY": config.opensea_api_key}
-    params = {"token_ids": token_id, "asset_contract_address": contract_address}
+    print(f"GET: {base_url}")
 
-    response = requests.get(base_url, headers=headers, params=params, timeout=30)
+    response = requests.get(base_url, headers=headers, timeout=30)
 
     if response.status_code == 200:
         data = response.json()
-        if "assets" in data and len(data["assets"]) > 0:
-            return data["assets"][0]["image_url"]
+        if "nft" in data and len(data["nft"]) > 0 and "image_url" in data["nft"]:
+            return data["nft"]["image_url"]
     else:
-        print(f"😖 Response failed: {response.text}")
+        print(f"😖 Response failed: {response.status_code} - {response.text}")
     return None
 
 
@@ -252,7 +250,7 @@ def get_nft_token_ids(contract_address: str, wallet_address: str):
     nft_collections = NFTOwnership.collab_nft_collections()
     collection_name = nft_collections[contract_address.lower()]
     # Initialize Web3
-    w3 = Web3(Web3.HTTPProvider("https://1rpc.io/eth"))
+    w3 = Web3(Web3.HTTPProvider("https://mainnet.gateway.tenderly.co"))
     contract_address = Web3.to_checksum_address(contract_address)
 
     # Define the filter parameters
