@@ -9,16 +9,6 @@
     <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
     <span>Add Website</span>
   </a>
-  {% else %}
-    {% if account.dwb_balance == 0 %}
-      <p>Before you can add a website, you need to <a href="/pricing">get some dwb tokens</a>.</p>
-    {% else %}
-      <p>To add more website, you need to <a href="/pricing">get more dwb tokens</a>.</p>
-    {% endif %}
-    <div class="flex-one-row">
-      {% include 'desktop/common/get_dwb.html' %}
-    </div>
-  {% endif %}
   <div style="flex: 1"></div>
   <div class="flex-one-row">
     <div class="segmented-control">
@@ -27,6 +17,18 @@
       {% endfor %}
     </div>
   </div>
+  {% else %}
+    <div style="flex: 1; font-size: 16px; line-height: 1.2;">
+    {% if account.dwb_balance == 0 %}
+      Before you can add a website, you need to <a href="/pricing">get some dwb tokens</a>.
+    {% else %}
+      To add more website, you need to <a href="/pricing">get more dwb tokens</a>.
+    {% endif %}
+    </div>
+    <div class="flex-one-row">
+      {% include 'desktop/common/get_dwb.html' %}
+    </div>
+  {% endif %}
   </div>
 </div>
 <div class="box" id="websites">
