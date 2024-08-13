@@ -49,7 +49,7 @@ source.onmessage = function(message) {
 {% endblock %}
 {% block content %}
 {{ web_session_message()|safe }}
-{{ breadcrumb(['Websites:/websites', website.name + ':/websites/' + str(website.id)])|safe }}
+{{ breadcrumb(['Websites:/websites?o=' + account.websites_order_by, website.name + ':/websites/' + str(website.id)])|safe }}
 <form method="post" action="/websites/remove/{{ website.id}}" id="remove-website-{{ website.id }}">
 {{ xsrf_form_html()|safe }}
 </form>

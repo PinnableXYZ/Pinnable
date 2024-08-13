@@ -39,6 +39,13 @@ class PinnableMixin(object):
         self.session.commit()
         return account
 
+    def update_account_websites_order_by(self, account_id: int, order_by: str):
+        account = self.get_account_by_id(account_id)
+        if account:
+            if account.websites_order_by != order_by:
+                account.websites_order_by = order_by
+                self.session.commit()
+
     def verify_website_name(self):
         if "name" in self.request.arguments:
             name = self.get_argument("name").strip()

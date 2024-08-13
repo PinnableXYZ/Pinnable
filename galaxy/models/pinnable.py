@@ -30,6 +30,7 @@ class Account(Base):
         INTEGER(display_width=10, unsigned=True), nullable=False, default=1
     )
     dwb_balance = Column(DOUBLE, nullable=True, default=0)
+    websites_order_by = Column(String(100), nullable=False, default="name")
     last_checked = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
     websites = relationship(
         "Website",

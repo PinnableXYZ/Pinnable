@@ -44,7 +44,7 @@
         <div class="nav-inner">
           <a class="nav-item" href="/">Home</a>
           {% if account %}
-          <a class="nav-item" href="/websites">Websites</a>
+          <a class="nav-item" href="/websites?o={{ account.websites_order_by }}">Websites</a>
           {% endif %}
           <a class="nav-item" href="/pricing">Pricing</a>
           <a class="nav-item" href="/planet">Planet</a>

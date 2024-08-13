@@ -22,6 +22,7 @@ class PinnableWebsitesHandler(WebHandler):
                 order = "name"
         self.values["order_options"] = order_options
         self.values["order"] = order
+        self.update_account_websites_order_by(self.current_user.id, order)
         self.values["websites"] = self.get_websites(self.current_user.id, order)
         self.finalize("pinnable/websites.html")
 
