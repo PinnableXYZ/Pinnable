@@ -3,6 +3,7 @@
 <div class="box">
   <h1>Websites</h1>
 
+  <div class="websites-buttons">
   {% if account.can_add_more %}
   <a href="/websites/add" class="btn">
     <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
@@ -18,6 +19,15 @@
       {% include 'desktop/common/get_dwb.html' %}
     </div>
   {% endif %}
+  <div style="flex: 1"></div>
+  <div class="flex-one-row">
+    <div class="segmented-control">
+      {% for o in order_options %}
+      <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  </div>
 </div>
 <div class="box" id="websites">
   {% for website in websites %}

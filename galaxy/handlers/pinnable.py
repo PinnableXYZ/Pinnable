@@ -72,13 +72,39 @@ class PinnableMixin(object):
         )
         return website
 
-    def get_websites(self, account_id: int):
-        websites = (
-            self.session.query(Website)
-            .filter(Website.account_id == account_id)
-            .order_by(Website.name.asc())
-            .all()
-        )
+    def get_websites(self, account_id: int, order_by: str = "name"):
+        if order_by == "pinned":
+            # order by last pinned
+            websites = (
+                self.session.query(Website)
+                .filter(Website.account_id == account_id)
+                .order_by(Website.last_pinned.desc())
+                .all()
+            )
+        elif order_by == "created":
+            # order by created
+            websites = (
+                self.session.query(Website)
+                .filter(Website.account_id == account_id)
+                .order_by(Website.created.desc())
+                .all()
+            )
+        elif order_by == "size":
+            # order by size
+            websites = (
+                self.session.query(Website)
+                .filter(Website.account_id == account_id)
+                .order_by(Website.size.desc())
+                .all()
+            )
+        else:
+            # order by name
+            websites = (
+                self.session.query(Website)
+                .filter(Website.account_id == account_id)
+                .order_by(Website.name.asc())
+                .all()
+            )
         return websites
 
     def get_website_by_id(self, website_id: int):

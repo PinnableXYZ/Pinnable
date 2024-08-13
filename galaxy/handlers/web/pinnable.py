@@ -14,7 +14,15 @@ class PinnableWebsitesHandler(WebHandler):
     @authenticated
     def get(self):
         self.values["theme_color"] = "#c5c5c5"
-        self.values["websites"] = self.get_websites(self.current_user.id)
+        order_options = ["name", "created", "pinned", "size"]
+        order = "name"
+        if "o" in self.request.arguments:
+            order = self.get_argument("o")
+            if order not in order_options:
+                order = "name"
+        self.values["order_options"] = order_options
+        self.values["order"] = order
+        self.values["websites"] = self.get_websites(self.current_user.id, order)
         self.finalize("pinnable/websites.html")
 
 

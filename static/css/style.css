@@ -510,6 +510,13 @@ img.screenshot {
   gap: 10px;
 }
 
+.websites-buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
 .blog-items {
   margin-top: 26px;
   display: flex;
@@ -674,6 +681,34 @@ ul:last-child {
 
 .sl:focus {
   outline: none;
+}
+
+.segmented-control {
+  display: flex;
+  border-radius: 6px;
+  border: 1px solid var(--box-border-color) !important;
+  box-sizing: border-box;
+  font-size: 14px;
+  background-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.05) inset;
+}
+
+.segmented-control-item {
+  padding: 6px 20px 6px 20px;
+  border: 1px solid transparent;
+}
+
+.segmented-control-item:hover {
+  border-bottom: none;
+  text-decoration: none;
+}
+
+.segmented-control-item.active {
+  background-color: #f0f0f0;
+  color: #111;
+  border-radius: 6px;
+  box-shadow: var(--small-shadows);
+  border: 1px solid var(--box-border-color) !important;
 }
 
 .btn {
@@ -892,5 +927,11 @@ pre.cmd code {
 
   .bottom-container {
     margin-top: 20px;
+  }
+}
+
+@media screen and (max-width: 1060px) {
+  .websites-buttons {
+    flex-direction: column;
   }
 }
