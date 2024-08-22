@@ -28,12 +28,17 @@ class SystemAuthHandler(WebHandler):
             self.set_header("Content-Type", "text/plain")
             siwe_message = None
             try:
-                siwe_message = SiweMessage(message=message)
+                if hasattr(SiweMessage, "from_message") and callable(
+                    SiweMessage.from_message
+                ):
+                    siwe_message = SiweMessage.from_message(message)
+                else:
+                    siwe_message = SiweMessage(message=message)
                 siwe_message.verify(signature)
             except Exception as e:
                 # TODO: handle this possible issue
                 self.values["error"] = "Authentication failed: " + str(e)
-                self.redirect("/")
+                self.redirect("/?error=1")
                 self.finish()
             if siwe_message is not None and hasattr(siwe_message, "expiration_time"):
                 expiration = siwe_message.expiration_time
@@ -49,7 +54,7 @@ class SystemAuthHandler(WebHandler):
             if account is None:
                 account = self.create_account(siwe_message.address)
             self.q.enqueue(check_account, account.id)
-            self.redirect("/")
+            self.redirect("/?ok=1")
 
 
 class SystemHomeHandler(WebHandler):
