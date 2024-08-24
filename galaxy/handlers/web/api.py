@@ -53,7 +53,7 @@ class APIIPFSPeersHandler(WebHandler):
             cid = self.ipfs_name_resolve(name)
         elif query.startswith("Qm"):
             cid = query
-        elif query.startswith("bafy"):
+        elif query.startswith("baf"):
             cid = query
         elif query.endswith(".eth"):
             name = query
