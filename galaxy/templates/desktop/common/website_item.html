@@ -17,7 +17,7 @@
     {% if website.last_known_cid != None %}
     <div class="item-detail">
       <span class="item-detail-label">CID</span>
-      <span class="item-detail-content"><a href="https://eth.sucks/ipfs/{{ website.last_known_cid }}" target="_blank">{{ website.last_known_cid }}</a></span>
+      <span class="item-detail-content"><a href="{{ website.cid_url }}" target="_blank">{{ website.last_known_cid }}</a></span>
     </div>
     {% else %}
     <div class="item-detail" id="website-not-pinned-{{ website.id }}">

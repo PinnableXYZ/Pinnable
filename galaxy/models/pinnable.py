@@ -173,6 +173,12 @@ class Website(Base):
             return None
 
     @property
+    def cid_url(self):
+        if self.last_known_cid is not None:
+            return f"{ipfs_gateway}/ipfs/{self.last_known_cid}"
+        return None
+
+    @property
     def ipfs_path(self):
         if self.kind == "ENS":
             return f"/ipns/{self.name}"
