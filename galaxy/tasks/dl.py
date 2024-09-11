@@ -32,5 +32,5 @@ def check_update(app, appcast):
             binary=True,
             behaviors={"tcp_nodelay": True, "ketama": True},
         )
-        mc.set(mc_key, mc_value, 60)
+        mc.set(mc_key, mc_value, 600)
         print("Updated " + app + " to " + version)
