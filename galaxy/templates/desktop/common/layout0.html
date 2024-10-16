@@ -83,7 +83,7 @@
     </div>
   </div>
   <div class="bottom-container">
-    <footer>Pinnable Alpha Test</footer>
+    <footer>Pinnable {% if build %}{{ build }}{% endif %}</footer>
   </div>
   {% if account %}
   <form method="post" action="/signout" id="signout">

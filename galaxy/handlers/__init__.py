@@ -117,10 +117,19 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def ok(self):
         return self.values["errors"] == 0
 
+    def read_build(self):
+        # read the content of build.txt at project root
+        try:
+            with open("build.txt") as f:
+                return f.read().strip()
+        except Exception:
+            return None
+
     @property
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
+            self._values["build"] = self.read_build()
             self._values["plausible_name"] = config.plausible_name
             self._values["web_session"] = self.web_session
             self._values["web_session_message"] = self.web_session_message
