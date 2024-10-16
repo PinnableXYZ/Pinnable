@@ -121,6 +121,7 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def values(self):
         if not hasattr(self, "_values"):
             self._values = {}
+            self._values["plausible_name"] = config.plausible_name
             self._values["web_session"] = self.web_session
             self._values["web_session_message"] = self.web_session_message
             self._values["pinnable_api_prefix"] = config.pinnable_api_prefix

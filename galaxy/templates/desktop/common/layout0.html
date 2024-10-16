@@ -34,6 +34,9 @@
     }
   </style>
   {% endif %}
+  {% if plausible_name != None %}
+  <script defer data-domain="{{ plausible_name }}" src="https://plausible.io/js/script.js"></script>
+  {% endif %}
   <script>
     window.addEventListener('DOMContentLoaded', e => {
       {% block dom_ready %}
