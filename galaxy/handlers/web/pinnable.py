@@ -64,7 +64,7 @@ class PinnableWebsitesInfoHandler(WebHandler):
         if website and website.account_id == self.current_user.id:
             if website.seconds_since(website.last_checked) > 60:
                 self.q.enqueue(check_website, website.id)
-            if website.title is None:
+            if website.title is None or len(website.title) == 0:
                 self.q.enqueue(fetch_website_info, website.id)
             self.values["website"] = website
             self.values["theme_color"] = "#c5c5c5"
