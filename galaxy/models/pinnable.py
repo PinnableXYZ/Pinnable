@@ -143,6 +143,7 @@ class Website(Base):
     pin_api_uuid = Column(String(36), nullable=False, unique=True)
     name = Column(String(200), nullable=False, unique=True)
     title = Column(String(100), nullable=True, unique=False)
+    image_url = Column(String(512), nullable=True, unique=False)
     last_known_ipns = Column(String(128), nullable=True)
     last_known_cid = Column(String(128), nullable=True)
     size = Column(BIGINT(unsigned=True), nullable=True)
@@ -187,6 +188,22 @@ class Website(Base):
             return f"/ipns/{self.name}"
         else:
             return None
+
+    @property
+    def needs_info(self):
+        if self.title is None:
+            return True
+        if self.image_url is None:
+            return True
+        if len(self.title) == 0:
+            return True
+        if len(self.image_url) == 0:
+            return True
+        return False
+
+    @property
+    def image(self):
+        return ipfs_gateway + self.image_url
 
 
 class WebsiteTaskLog(Base):

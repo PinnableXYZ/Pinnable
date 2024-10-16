@@ -1,5 +1,10 @@
 <div class="website-item">
   <div class="website-item-top">
+    {% if website.image_url %}
+    <div class="website-icon">
+      <img src="{{ website.image }}" />
+    </div>
+    {% endif %}
     <div class="website-name"><a href="/websites/{{ website.id }}">{% if website.title != None %}{{ website.title|e }}{% else %}{{ website.name|e }}{% endif %}</a></div>
     <div class="website-access">
       <a class="btn" href="{{ website.url }}" target="_blank">
