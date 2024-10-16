@@ -1,6 +1,6 @@
 <div class="website-item">
   <div class="website-item-top">
-    <div class="website-name"><a href="/websites/{{ website.id }}">{{ website.name|e }}</a></div>
+    <div class="website-name"><a href="/websites/{{ website.id }}">{% if website.title != None %}{{ website.title|e }}{% else %}{{ website.name|e }}{% endif %}</a></div>
     <div class="website-access">
       <a class="btn" href="{{ website.url }}" target="_blank">
         <img src="{{ static_url('img/network.svg') }}" height="16" />

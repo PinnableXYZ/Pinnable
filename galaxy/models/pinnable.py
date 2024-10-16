@@ -142,6 +142,7 @@ class Website(Base):
     )
     pin_api_uuid = Column(String(36), nullable=False, unique=True)
     name = Column(String(200), nullable=False, unique=True)
+    title = Column(String(100), nullable=True, unique=False)
     last_known_ipns = Column(String(128), nullable=True)
     last_known_cid = Column(String(128), nullable=True)
     size = Column(BIGINT(unsigned=True), nullable=True)

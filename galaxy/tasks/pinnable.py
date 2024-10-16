@@ -461,6 +461,8 @@ def pin_website(website_id: int):
 
                     website.last_known_cid = cid
                     website.last_pinned = int(time.time())
+
+                    q.enqueue(fetch_website_info, website.id)
                 else:
                     print(f"😚 {website.name} is already pinned to {cid}")
                     website.last_pinned = int(time.time())
@@ -479,4 +481,28 @@ def pin_website(website_id: int):
                 pass
     except Exception as e:
         print(e)
+    session.close()
+
+
+def fetch_website_info(website_id: int):
+    session = Session()
+    website = session.query(Website).filter(Website.id == website_id).first()
+    if website is None:
+        print(f"😖 Website (id={website_id}) not found")
+        session.close()
+        return
+    if website.last_known_cid is not None:
+        info_request = (
+            f"{config.ipfs_gateway}/ipfs/{website.last_known_cid}/planet.json"  # noqa
+        )
+        resp = requests.get(info_request, timeout=30)
+        if resp.status_code == 200:
+            data = resp.json()
+            if "name" in data:
+                if website.title != data["name"]:
+                    print(
+                        f"📝 Updated website title for {website.name} to {data['name']}"
+                    )
+                    website.title = data["name"]
+            session.commit()
     session.close()
