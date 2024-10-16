@@ -7,7 +7,12 @@ from tornado.iostream import StreamClosedError
 from tornado.web import authenticated
 
 from galaxy.handlers.web import WebHandler
-from galaxy.tasks.pinnable import check_account, check_website, pin_website
+from galaxy.tasks.pinnable import (
+    check_account,
+    check_website,
+    fetch_website_info,
+    pin_website,
+)
 
 
 class PinnableWebsitesHandler(WebHandler):
@@ -59,6 +64,8 @@ class PinnableWebsitesInfoHandler(WebHandler):
         if website and website.account_id == self.current_user.id:
             if website.seconds_since(website.last_checked) > 60:
                 self.q.enqueue(check_website, website.id)
+            if website.title is None:
+                self.q.enqueue(fetch_website_info, website.id)
             self.values["website"] = website
             self.values["theme_color"] = "#c5c5c5"
             self.finalize("pinnable/websites_info.html")
