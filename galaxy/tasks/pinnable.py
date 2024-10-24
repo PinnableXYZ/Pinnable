@@ -462,6 +462,9 @@ def pin_website(website_id: int):
                     website.last_known_cid = cid
                     website.last_pinned = int(time.time())
 
+                    if website.subname is not None:
+                        q.enqueue(update_website_subname_cid, website.id, cid)
+
                     q.enqueue(fetch_website_info, website.id)
                 else:
                     print(f"😚 {website.name} is already pinned to {cid}")
@@ -514,4 +517,31 @@ def fetch_website_info(website_id: int):
                     )
                     website.title = data["name"]
             session.commit()
+    session.close()
+
+
+def update_website_subname_cid(website_id: int, cid: str):
+    session = Session()
+    website = session.query(Website).filter(Website.id == website_id).first()
+    if website is None:
+        print(f"😖 Website (id={website_id}) not found")
+        session.close()
+        return
+    if website.subname is not None and website.subname != "":
+        # Write CID to Namestone
+        subname = website.subname
+        address = website.account.address
+        cid = cid
+        namestone_api = "https://namestone.xyz/api/public_v1/set-name"
+        headers = {"Authorization": config.namestone_api_token}
+        data = {
+            "domain": config.namestone_domain,
+            "name": subname,
+            "address": address,
+            "contenthash": "ipfs://" + cid,
+        }
+        try:
+            requests.post(namestone_api, headers=headers, json=data, timeout=30)
+        except Exception as e:
+            print("🗿 Namestone API error: ", e)
     session.close()

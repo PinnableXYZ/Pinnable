@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
 import os.path
+import re
 
 import galaxy
 from galaxy.handlers import BaseHandler
+
+IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
 
 
 class WebHandler(BaseHandler):
@@ -34,6 +37,72 @@ class WebHandler(BaseHandler):
             o = o + "</div>"
             del self.web_session["message"]
         return o
+
+    def flash(self, message: str):
+        self.web_session["message"] = message
+
+    def verify_website_name(self):
+        if "name" in self.request.arguments:
+            name = self.get_argument("name").strip()
+            name_length = len(name)
+        else:
+            name = None
+            name_length = 0
+            self.add_error("Name is required.")
+        name = name.lower()
+        self.values["website_name"] = name
+        if name_length == 62 and name.startswith("k51"):
+            if not IPNS_RE.match(name):
+                self.add_error("Invalid IPNS provided.")
+            return
+        if name.endswith(".eth"):
+            existing_name = self.get_website(name, account_id=self.current_user.id)
+            if existing_name:
+                self.add_error(
+                    "Website is already added: <a href='/websites/%d'>%s</a>"
+                    % (existing_name.id, name)
+                )
+        if name_length > 200:
+            self.add_error("Name must be less than 200 characters.")
+
+    def verify_website_subname(self, website_id: int | None = None):
+        self.values["website_subname"] = None
+        if "subname" in self.request.arguments:
+            subname = self.get_argument("subname").strip()
+            subname_length = len(subname)
+        else:
+            subname = None
+            subname_length = 0
+            self.add_error("Subname is required.")
+            return
+        self.values["website_subname"] = subname
+        if subname_length > 64:
+            self.add_error("Subname must be less than 64 characters.")
+            return
+        if subname_length == 0:
+            self.add_error("Subname is required.")
+            return
+        # Regular Expression:
+        # - lower case letters and numbers
+        # - dash (-) is allowed, but not at the beginning or end, not consecutively
+        pattern = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+        if not pattern.match(subname):
+            self.add_error("Subname must be lower case letters and numbers only.")
+            return
+        # Check if subname is already used
+        if website_id:
+            website = self.get_website_by_id(website_id)
+            if (
+                website.subname == subname
+                and website.account_id != self.current_user.id
+            ):
+                self.add_error("Subname is used by another website.")
+                return
+        else:
+            website = self.get_website_by_subname(subname=subname)
+            if website:
+                self.add_error("Subname is used by another website.")
+                return
 
     def finalize(
         self, template_name, write_static=False, static_key="", output_string=False

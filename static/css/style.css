@@ -510,6 +510,10 @@ img.screenshot {
   gap: 10px;
 }
 
+.flex-one-row.wrap {
+  flex-wrap: wrap;
+}
+
 .websites-buttons {
   display: flex;
   flex-direction: row;
@@ -781,6 +785,10 @@ ul:last-child {
 
 .spacer {
   flex: 1;
+}
+
+.long {
+  line-break: anywhere;
 }
 
 .secondary {

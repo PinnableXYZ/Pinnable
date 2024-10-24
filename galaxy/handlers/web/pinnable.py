@@ -203,12 +203,62 @@ class PinnableWebsitesRemoveHandler(WebHandler):
             self.redirect("/websites")
 
 
+class PinnableWebsitesSubnameHandler(WebHandler):
+    @authenticated
+    def get(self, website_id: int):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.values["website"] = website
+            self.finalize("pinnable/websites_subname.html")
+        else:
+            self.redirect("/websites")
+
+    @authenticated
+    def post(self, website_id: int):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            self.verify_website_subname(website.id)
+            if self.ok():
+                self.update_website_subname(website.id, self.values["website_subname"])
+                self.redirect(f"/websites/{website.id}")
+            else:
+                self.values["website"] = website
+                self.finalize("pinnable/websites_subname.html")
+        else:
+            self.redirect("/websites")
+
+
+class PinnableWebsitesUnassignHandler(WebHandler):
+    @authenticated
+    def get(self, website_id: int):
+        website = self.get_website_by_id(website_id)
+        if website and website.account_id == self.current_user.id:
+            if website.subname:
+                if self.once_ok():
+                    subname = website.subname
+                    website.subname = None
+                    self.session.commit()
+                    self.delete_subname(website.subname)
+                    self.flash("Subname unassigned: %s" % subname)
+                    self.generate_new_once()
+                else:
+                    self.flash("CSRF token expired, please try again")
+                self.redirect(f"/websites/subname/{website.id}")
+            else:
+                self.flash("No subname assigned")
+            self.redirect(f"/websites/{website.id}")
+        else:
+            self.redirect("/websites")
+
+
 pinnable_handlers = [
     (r"/websites/?$", PinnableWebsitesHandler),
     (r"/websites/([0-9]+)/?$", PinnableWebsitesInfoHandler),
     (r"/websites/([0-9]+).json$", PinnableWebsitesInfoJSONHandler),
     (r"/websites/([0-9]+)/logs/?$", PinnableWebsitesLogsHandler),
     (r"/websites/remove/([0-9]+)/?$", PinnableWebsitesRemoveHandler),
+    (r"/websites/subname/([0-9]+)/?$", PinnableWebsitesSubnameHandler),
+    (r"/websites/unassign/([0-9]+)/?$", PinnableWebsitesUnassignHandler),
     (r"/websites/add/?$", PinnableWebsitesAddHandler),
     (r"/websites/pin/([0-9]+)/?$", PinnableWebsitesPinHandler),
     (

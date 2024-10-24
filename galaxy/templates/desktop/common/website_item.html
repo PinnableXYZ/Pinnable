@@ -22,7 +22,7 @@
     {% if website.last_known_cid != None %}
     <div class="item-detail">
       <span class="item-detail-label">CID</span>
-      <span class="item-detail-content"><a href="{{ website.cid_url }}" target="_blank">{{ website.last_known_cid }}</a></span>
+      <span class="item-detail-content"><a href="{{ website.cid_url }}" target="_blank" class="long">{{ website.last_known_cid }}</a></span>
     </div>
     {% else %}
     <div class="item-detail" id="website-not-pinned-{{ website.id }}">
@@ -32,6 +32,7 @@
   </div>
   <div class="website-item-bottom">
     <div class="website-info" id="website-info-{{ website.id }}">{{ website.kind }}{% if website.size != None and website.size != 0 %} <span
-        class="dot">·</span> Size: {{ website.size|format_bytes }}{% endif %}</div>
+        class="dot">·</span> Size: {{ website.size|format_bytes }}{% endif %}{% if website.subname %} <span
+        class="dot">·</span> <a href="https://{{ website.subname}}.iweb.eth.limo/" target="_blank">{{ website.subname }}.iweb.eth</a>{% endif %}</div>
   </div>
 </div>

@@ -144,6 +144,7 @@ class Website(Base):
     name = Column(String(200), nullable=False, unique=True)
     title = Column(String(100), nullable=True, unique=False)
     image_url = Column(String(512), nullable=True, unique=False)
+    subname = Column(String(64), nullable=False, unique=True)
     last_known_ipns = Column(String(128), nullable=True)
     last_known_cid = Column(String(128), nullable=True)
     size = Column(BIGINT(unsigned=True), nullable=True)

@@ -3,6 +3,7 @@
 import calendar
 import datetime
 import json
+import random
 import re
 import secrets
 
@@ -117,6 +118,22 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
     def ok(self):
         return self.values["errors"] == 0
 
+    def generate_new_once(self):
+        once = random.randrange(10000, 99999)  # nosec
+        self.web_session["once"] = once
+        return once
+
+    def once_ok(self):
+        try:
+            once = int(self.get_argument("once"))
+            if config.ivalice_mode == "test" and once == 528491:
+                return True
+            if once < 10000 or once > 99999:
+                return False
+            return once == self.web_session.get("once", 0)
+        except Exception:
+            return False
+
     def read_build(self):
         # read the content of build.txt at project root
         try:
@@ -130,6 +147,7 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
         if not hasattr(self, "_values"):
             self._values = {}
             self._values["build"] = self.read_build()
+            self._values["is_mobile"] = self.is_mobile
             self._values["plausible_name"] = config.plausible_name
             self._values["web_session"] = self.web_session
             self._values["web_session_message"] = self.web_session_message
@@ -142,6 +160,9 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
             self._values["errors"] = 0
             self._values["error_messages"] = []
             self._values["request"] = self.request
+            if "once" not in self.web_session:
+                self.web_session["once"] = random.randrange(10000, 99999)  # nosec
+            self._values["once"] = self.web_session["once"]
         return self._values
 
     def on_finish(self):

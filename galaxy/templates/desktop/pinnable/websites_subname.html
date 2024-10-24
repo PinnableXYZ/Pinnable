@@ -1,0 +1,50 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block content %}
+{{ web_session_message()|safe }}
+{{ breadcrumb(['Websites:/websites?o=' + account.websites_order_by, website.name + ':/websites/' + str(website.id), 'Subname:/websites/subname/' + str(website.id)])|safe }}
+<div class="box">
+<h1>Assign a Subname</h1>
+<p>You can assign a subname on <code>iweb.eth</code> for your website, and your website will become accessible with <code>[subname].iweb.eth</code></p>
+<p>The latest CID of the website will be continuously written to the assigned subname.</p>
+</div>
+<div class="box">
+{% if errors > 0 %}
+<ul>
+{% for error in error_messages %}
+<li>{{ error|safe }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+<form method="post" action="/websites/subname/{{ website.id }}">
+<section>
+<table cellpadding="0" cellspacing="0" border="0">
+<tr>
+<td width="120">Subname</td>
+<td width="auto"><input type="text" name="subname" value="{{ website_subname|e }}" class="sl" placeholder="Please enter a subname" required autofocus {% if add_disabled %}disabled{% endif %} /></td>
+</tr>
+</table>
+</section>
+<section>
+<input type="submit" value="Submit" class="btn" />
+{{ xsrf_form_html()|safe }}
+</section>
+</form>
+</div>
+{% if website.subname %}
+<div class="box">
+<h2>Current Assigned Subname</h2>
+<p><a href="https://{{ website.subname }}.iweb.eth.limo/" target="_blank" class="btn">
+  <img src="{{ static_url('img/arrow.up.right.circle.fill.svg')}}" height="16" alt="Assigned Subname: {{ website.subname }}" />
+  <span><code><strong>{{ website.subname }}</strong>.iweb.eth</code></span>
+</a></p>
+<p><small class="long">CID: <code>{{ website.last_known_cid|e }}</code></small></p>
+<p><a href="#" onclick="if (confirm('Are you sure you want to unassign subname `{{ website.subname }}` from this website?')) { location.href = '/websites/unassign/{{ website.id }}?once={{ once }}'; }" class="btn">
+  <img src="{{ static_url('img/minus.circle.fill.svg')}}" height="16" alt="Unassign" />
+  <span>Unassign</span>
+</a></p>
+</div>
+{% endif %}
+{% endblock %}
+{% block aside %}
+{% include 'desktop/common/quota.html' %}
+{% endblock %}

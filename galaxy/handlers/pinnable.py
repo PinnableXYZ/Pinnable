@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-import re
 import time
 import uuid
+from typing import Any
 
 import pylibmc
 import redis
+import requests
 import sqlalchemy
 
+import config
 from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
-
-IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
 
 
 class PinnableMixin(object):
@@ -18,6 +18,8 @@ class PinnableMixin(object):
     mc: pylibmc.Client
     r: redis.Redis
     current_user: Account
+    request: Any
+    values: dict[str, Any]
 
     def get_account(self, address: str):
         account = (
@@ -46,29 +48,41 @@ class PinnableMixin(object):
                 account.websites_order_by = order_by
                 self.session.commit()
 
-    def verify_website_name(self):
-        if "name" in self.request.arguments:
-            name = self.get_argument("name").strip()
-            name_length = len(name)
-        else:
-            name = None
-            name_length = 0
-            self.add_error("Name is required.")
-        name = name.lower()
-        self.values["website_name"] = name
-        if name_length == 62 and name.startswith("k51"):
-            if not IPNS_RE.match(name):
-                self.add_error("Invalid IPNS provided.")
-            return
-        if name.endswith(".eth"):
-            existing_name = self.get_website(name, account_id=self.current_user.id)
-            if existing_name:
-                self.add_error(
-                    "Website is already added: <a href='/websites/%d'>%s</a>"
-                    % (existing_name.id, name)
-                )
-        if name_length > 200:
-            self.add_error("Name must be less than 200 characters.")
+    def update_website_subname(self, website_id: int, subname: str):
+        website = self.get_website_by_id(website_id)
+        if website:
+            if website.subname != subname:
+                previous_subname = website.subname
+                # If previous subname is not empty, delete it from Namestone
+                if previous_subname is not None and len(previous_subname) > 0:
+                    self.delete_subname(previous_subname)
+                website.subname = subname
+                if website.last_known_cid:
+                    # Write CID to Namestone
+                    self.update_website_subname_cid(website.id)
+            self.session.commit()
+
+    def update_website_subname_cid(self, website_id: int):
+        # TODO: move this method to Website model's instance method
+        website = self.get_website_by_id(website_id)
+        if website:
+            if website.subname and website.last_known_cid:
+                namestone_api = "https://namestone.xyz/api/public_v1/set-name"
+                headers = {"Authorization": config.namestone_api_token}
+                data = {
+                    "domain": config.namestone_domain,
+                    "name": website.subname,
+                    "address": website.account.address,
+                    "contenthash": "ipfs://" + website.last_known_cid,
+                }
+                requests.post(namestone_api, headers=headers, json=data, timeout=30)
+
+    def delete_subname(self, subname: str):
+        # Delete subname from Namestone
+        namestone_api = "https://namestone.xyz/api/public_v1/delete-name"
+        headers = {"Authorization": config.namestone_api_token}
+        data = {"domain": config.namestone_domain, "name": subname}
+        requests.post(namestone_api, headers=headers, json=data, timeout=30)
 
     def get_website(self, name: str, account_id: int):
         website = (
@@ -77,6 +91,10 @@ class PinnableMixin(object):
             .filter(Website.account_id == account_id)
             .first()
         )
+        return website
+
+    def get_website_by_subname(self, subname: str):
+        website = self.session.query(Website).filter(Website.subname == subname).first()
         return website
 
     def get_websites(self, account_id: int, order_by: str = "name"):
