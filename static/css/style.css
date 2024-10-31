@@ -174,7 +174,7 @@ footer {
   border-bottom: var(--box-border);
   position: sticky;
   top: 0px;
-  z-index: 99;
+  z-index: 80;
 }
 
 header {

@@ -1,52 +1,182 @@
 {% extends 'desktop/common/layout0.html' %}
 {% block dom_ready %}
-checkWalletConnection();
+// checkWalletConnection();
 {% endblock %}
 {% block content %}
 <div class="box">
-<h1>Welcome to Pinnable</h1>
-<section>
+  <h1>Welcome to Pinnable</h1>
+  <section>
 
-{% if account %}
-<div class="flex-one-row" style="margin-bottom: 20px;">
-  <div class="account-avatar"{% if account.avatar != None %} style="background-image: url('{{ account.avatar }}');"{% else %}style="background-image: url('https://zora.co/api/avatar/{{ account.address }}');"{% endif %}></div>
-  <code>{{ account.display_name }}</code>
-</div>
-<div class="flex-one-row">
-<a href="/websites?o={{ account.websites_order_by }}" class="btn">
-  <img src="{{ static_url("img/network.svg") }}" height="16" />
-  <span>My Websites</span>
-</a>
-<a href="#;" onclick="signout()" class="btn">
-  <span>Sign Out</span>
-</a>
-</div>
-{% else %}
-<p>We are building open-source software and infrastructure for pinning decentralized websites running on IPFS and ENS.</p>
+    {% if account %}
+    <div class="flex-one-row" style="margin-bottom: 20px;">
+      <div class="account-avatar" {% if account.avatar !=None %} style="background-image: url('{{ account.avatar }}');"
+        {% else %}style="background-image: url('https://zora.co/api/avatar/{{ account.address }}');" {% endif %}></div>
+      <code>{{ account.display_name }}</code>
+    </div>
+    <div class="flex-one-row wrap">
+      <a href="/websites?o={{ account.websites_order_by }}" class="btn">
+        <img src="{{ static_url("img/network.svg") }}" height="16" />
+        <span>My Websites</span>
+      </a>
+      <a href="#;" class="btn" id="signout-button">
+        <span>Sign Out</span>
+      </a>
+    </div>
+    {% else %}
+    <p>We are building open-source software and infrastructure for pinning decentralized websites running on IPFS and
+      ENS.</p>
 
-<a href="javascript:doSIWE()" class="btn">
-  <img src="{{ static_url("img/ethereum.svg") }}" height="16" />
-  <span id="siwe-button-label">Connect Wallet</span>
-</a>
-<!--
-<a href="javascript:doSIWE();" class="svg-btn"><img src="{{ static_url("img/siwe.svg") }}" border="0" alt="Sign in with Ethereum" class="btn-siwe" /></a>
--->
-<form method="post" action="/auth" id="siwe-form">
-  <input type="hidden" name="signature" id="siwe-signature" value="">
-  <input type="hidden" name="message" id="siwe-message" value="">
-  {{ xsrf_form_html()|safe }}
-</form>
-{% endif %}
-</section>
+    <!-- old MetaMask-only implementation
+    <a href="javascript:doSIWE()" class="btn">
+      <img src="{{ static_url("img/ethereum.svg") }}" height="16" />
+      <span id="siwe-button-label">Connect Wallet</span>
+    </a>
+    -->
+
+    <!-- New Web3Modal implementation -->
+    <a href="#;" class="btn" id="reown-button">
+      <img src="{{ static_url("img/ethereum.svg") }}" height="16" />
+      <span id="siwe-button-label">Connect Wallet</span>
+    </a>
+
+    <!--
+    <a href="javascript:doSIWE();" class="svg-btn"><img src="{{ static_url("img/siwe.svg") }}" border="0" alt="Sign in with Ethereum" class="btn-siwe" /></a>
+    -->
+    <form method="post" action="/auth" id="siwe-form">
+      <input type="hidden" name="signature" id="siwe-signature" value="">
+      <input type="hidden" name="message" id="siwe-message" value="">
+      {{ xsrf_form_html()|safe }}
+    </form>
+    {% endif %}
+
+    <script type="module">
+      const connectWalletButton = document.getElementById("reown-button");
+      const buttonLabel = document.getElementById("siwe-button-label");
+      let currentAccount = undefined;
+
+      const signIn = async (account) => {
+        const address = account.address;
+  const domain = window.location.host;
+  const origin = window.location.origin;
+
+  const version = '1';
+  const chainId = '1';
+
+  const statement = 'Sign in with Ethereum';
+
+  // Generate a random string contains 17 characters
+  const nonce = Math.random().toString(36).substring(2, 11) + Math.random().toString(36).substring(2, 12);
+
+  const issuedAt = new Date().toISOString();
+
+  // Expire in 7 days
+  let expirationTime = new Date();
+  expirationTime.setDate(expirationTime.getDate() + 7);
+  expirationTime = expirationTime.toISOString();
+
+  const messageTemplate = `${domain} wants you to sign in with your Ethereum account:
+${address}
+
+${statement}
+
+URI: ${origin}
+Version: ${version}
+Chain ID: ${chainId}
+Nonce: ${nonce}
+Issued At: ${issuedAt}
+Expiration Time: ${expirationTime}`;
+
+        // sign the message
+        {% if not account %}
+          signMessage({
+            message: messageTemplate,
+          }).then((signature) => {
+            const form = document.getElementById('siwe-form');
+            const messageInput = form.querySelector(`input[name="message"]`);
+            const signatureInput = form.querySelector(`input[name="signature"]`);;
+            messageInput.value = messageTemplate;
+            signatureInput.value = signature;
+            form.submit();
+          });
+          {% endif %}
+      };
+      // Web3Modal setup
+
+      window.process = { env: { NODE_ENV: "development" } };
+      import {
+        EthereumClient,
+        w3mConnectors,
+        w3mProvider,
+        WagmiCore, // same as from @wagmi/core
+        WagmiCoreChains, // same as from @wagmi/core/chains
+      } from 'https://unpkg.com/@web3modal/ethereum@2.7.1'
+      import { Web3Modal } from 'https://unpkg.com/@web3modal/html@2.7.1'
+      const { configureChains, createConfig, writeContract, waitForTransaction, signMessage } = WagmiCore;
+      const { mainnet } = WagmiCoreChains;
+      const walletConnectProjectId = '8c61ff527ab63c206daa713f7e315107';
+      const chains = [mainnet];
+      const { publicClient } = configureChains(chains, [w3mProvider({ projectId: walletConnectProjectId })]);
+      const wagmiConfig = createConfig({
+        autoConnect: false,
+        connectors: w3mConnectors({ projectId: walletConnectProjectId, chains }),
+        publicClient
+      });
+      const ethereumClient = new EthereumClient(wagmiConfig, chains);
+
+      const web3modal = new Web3Modal({ projectId: walletConnectProjectId }, ethereumClient);
+
+      ethereumClient.watchAccount((account) => {
+        /*
+        buttonLabel.innerText = account.isConnected
+          ? "Connected: " + account.address.slice(0, 6) + "\u2026" + account.address.slice(-4)
+          : "Connect Wallet";
+        */
+        buttonLabel.innerText = account.isConnected
+          ? "Sign in with Ethereum"
+          : "Connect Wallet";
+
+        if (account.isConnected) {
+          // ask the user to sign SIWE message
+          // message to sign
+
+          currentAccount = account;
+          signIn(account);
+      }
+
+      });
+      {% if account %}
+      document.getElementById('signout-button').addEventListener('click', () => {
+        const form = document.getElementById('signout');
+        if (form) {
+          if (confirm('Are you sure you want to sign out?')) {
+            form.submit();
+          }
+        }
+      });
+      {% else %}
+      document.getElementById('reown-button').addEventListener('click', () => {
+        if (currentAccount === undefined) {
+          web3modal.openModal();
+        } else {
+          signIn(currentAccount);
+        }
+      });
+      {% endif %}
+    </script>
+  </section>
 </div>
 
 <div class="box">
-<h2>What is Pinning?</h2>
-<section>
-<p>When you create and publish decentralized websites using the Planet app, your Mac serves as a node on the IPFS peer-to-peer network, hosting your sites. By utilizing pinning, additional copies of your websites are distributed across the entire network, resulting in quicker loading times and increased reachability. For laptop users, this eliminates the need to keep your laptop on as a server. Each time you publish new content, Pinnable initiates syncing with your node, ensuring that you don't have to keep your Mac on continuously as a server.</p>
+  <h2>What is Pinning?</h2>
+  <section>
+    <p>When you create and publish decentralized websites using the Planet app, your Mac serves as a node on the IPFS
+      peer-to-peer network, hosting your sites. By utilizing pinning, additional copies of your websites are distributed
+      across the entire network, resulting in quicker loading times and increased reachability. For laptop users, this
+      eliminates the need to keep your laptop on as a server. Each time you publish new content, Pinnable initiates
+      syncing with your node, ensuring that you don't have to keep your Mac on continuously as a server.</p>
 
-<p>You will always maintain control over the authoritative version of your content.</p>
-</section>
+    <p>You will always maintain control over the authoritative version of your content.</p>
+  </section>
 </div>
 
 {% include 'desktop/common/juicebox.html' %}
