@@ -111,7 +111,7 @@ Expiration Time: ${expirationTime}`;
         WagmiCoreChains, // same as from @wagmi/core/chains
       } from 'https://unpkg.com/@web3modal/ethereum@2.7.1'
       import { Web3Modal } from 'https://unpkg.com/@web3modal/html@2.7.1'
-      const { configureChains, createConfig, writeContract, waitForTransaction, signMessage } = WagmiCore;
+      const { configureChains, createConfig, writeContract, waitForTransaction, signMessage, disconnect, getAccount } = WagmiCore;
       const { mainnet } = WagmiCoreChains;
       const walletConnectProjectId = '8c61ff527ab63c206daa713f7e315107';
       const chains = [mainnet];
@@ -149,6 +149,9 @@ Expiration Time: ${expirationTime}`;
         const form = document.getElementById('signout');
         if (form) {
           if (confirm('Are you sure you want to sign out?')) {
+            disconnect(wagmiConfig);
+            localStorage.clear();
+
             form.submit();
           }
         }
