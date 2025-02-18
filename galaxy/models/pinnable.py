@@ -211,7 +211,7 @@ class Website(Base):
     @property
     def cid_url(self):
         if self.last_known_cid is not None:
-            return f"{ipfs_objects_gateway}/ipfs/{self.last_known_cid}"
+            return f"https://ipfs.io/ipfs/{self.last_known_cid}"
         return None
 
     @property
