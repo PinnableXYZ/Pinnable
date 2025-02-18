@@ -1,154 +1,101 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: db
--- Generation Time: Oct 23, 2023 at 09:37 AM
--- Server version: 8.0.32
--- PHP Version: 8.1.15
+-- Adminer 4.8.1 MySQL 8.0.32 dump
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
+SET NAMES utf8mb4;
+SET time_zone = '+00:00';
+SET foreign_key_checks = 0;
+SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
---
--- Database: `ivalice`
---
-
--- --------------------------------------------------------
-
---
--- Table structure for table `Account`
---
+SET NAMES utf8mb4;
 
 CREATE TABLE `Account` (
-  `id` int UNSIGNED NOT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `address` varchar(128) NOT NULL,
   `ens` varchar(255) DEFAULT NULL,
   `avatar` varchar(2048) DEFAULT NULL,
-  `chain_id` int UNSIGNED NOT NULL DEFAULT '1',
+  `chain_id` int unsigned NOT NULL DEFAULT '1',
   `dwb_balance` double DEFAULT '0',
-  `created` int UNSIGNED NOT NULL,
-  `last_modified` int UNSIGNED DEFAULT NULL,
-  `last_checked` int UNSIGNED DEFAULT NULL
+  `ens_balance` double DEFAULT '0',
+  `websites_order_by` varchar(100) NOT NULL DEFAULT 'name',
+  `objects_order_by` varchar(100) NOT NULL DEFAULT 'name',
+  `created` int unsigned NOT NULL,
+  `last_modified` int unsigned DEFAULT NULL,
+  `last_checked` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `address` (`address`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Account';
 
--- --------------------------------------------------------
 
---
--- Table structure for table `NFTOwnership`
---
+CREATE TABLE `CIDObject` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `object_uuid` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `account_id` int unsigned NOT NULL,
+  `filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `content_type` varchar(128) NOT NULL,
+  `size` bigint unsigned NOT NULL DEFAULT '0',
+  `cid` varchar(128) NOT NULL,
+  `cid_thumb` varchar(128) DEFAULT NULL,
+  `sha256` char(64) NOT NULL,
+  `created` int unsigned NOT NULL,
+  `last_modified` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `object_uuid` (`object_uuid`),
+  KEY `account_id` (`account_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='CID Object';
+
 
 CREATE TABLE `NFTOwnership` (
-  `id` int UNSIGNED NOT NULL,
-  `account_id` int UNSIGNED NOT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int unsigned NOT NULL,
   `chain` varchar(32) NOT NULL,
   `contract` varchar(128) NOT NULL,
   `token_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `image_url` varchar(512) DEFAULT NULL,
-  `created` int UNSIGNED NOT NULL,
-  `last_modified` int UNSIGNED DEFAULT NULL,
-  `last_checked` int UNSIGNED DEFAULT NULL
+  `created` int unsigned NOT NULL,
+  `last_modified` int unsigned DEFAULT NULL,
+  `last_checked` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `token` (`chain`,`contract`,`token_id`),
+  KEY `account_id` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='NFT Ownership';
 
--- --------------------------------------------------------
-
---
--- Table structure for table `Website`
---
 
 CREATE TABLE `Website` (
-  `id` int UNSIGNED NOT NULL,
-  `account_id` int UNSIGNED NOT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `account_id` int unsigned NOT NULL,
   `pin_api_uuid` char(36) NOT NULL,
   `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `image_url` varchar(512) DEFAULT NULL,
+  `subname` varchar(64) DEFAULT NULL,
   `last_known_ipns` varchar(128) DEFAULT NULL,
   `last_known_cid` varchar(128) DEFAULT NULL,
   `size` bigint DEFAULT NULL,
-  `created` int UNSIGNED NOT NULL,
-  `last_modified` int UNSIGNED DEFAULT NULL,
-  `last_checked` int UNSIGNED DEFAULT NULL,
-  `last_pinned` int UNSIGNED DEFAULT NULL
+  `created` int unsigned NOT NULL,
+  `last_modified` int unsigned DEFAULT NULL,
+  `last_checked` int unsigned DEFAULT NULL,
+  `last_pinned` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `account_name` (`account_id`,`name`),
+  UNIQUE KEY `pin_api_uuid` (`pin_api_uuid`),
+  UNIQUE KEY `subname` (`subname`),
+  KEY `account_id` (`account_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Website';
 
--- --------------------------------------------------------
-
---
--- Table structure for table `WebsiteTaskLog`
---
 
 CREATE TABLE `WebsiteTaskLog` (
-  `id` int UNSIGNED NOT NULL,
-  `website_id` int UNSIGNED NOT NULL,
-  `event` varchar(4000) NOT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `website_id` int unsigned NOT NULL,
+  `event` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `icon` varchar(128) DEFAULT NULL,
   `ipns` varchar(128) DEFAULT NULL,
   `cid` varchar(128) DEFAULT NULL,
-  `size` bigint UNSIGNED DEFAULT NULL,
-  `created` int UNSIGNED NOT NULL,
-  `last_modified` int UNSIGNED DEFAULT NULL
+  `size` bigint unsigned DEFAULT NULL,
+  `created` int unsigned NOT NULL,
+  `last_modified` int unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `website_id` (`website_id`),
+  KEY `event` (`event`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='Website Task Log';
 
---
--- Indexes for dumped tables
---
 
---
--- Indexes for table `Account`
---
-ALTER TABLE `Account`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `address` (`address`);
-
---
--- Indexes for table `NFTOwnership`
---
-ALTER TABLE `NFTOwnership`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `token` (`chain`,`contract`,`token_id`),
-  ADD KEY `account_id` (`account_id`);
-
---
--- Indexes for table `Website`
---
-ALTER TABLE `Website`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `account_name` (`account_id`,`name`),
-  ADD UNIQUE KEY `pin_api_uuid` (`pin_api_uuid`),
-  ADD KEY `account_id` (`account_id`);
-
---
--- Indexes for table `WebsiteTaskLog`
---
-ALTER TABLE `WebsiteTaskLog`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `website_id` (`website_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `Account`
---
-ALTER TABLE `Account`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `NFTOwnership`
---
-ALTER TABLE `NFTOwnership`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `Website`
---
-ALTER TABLE `Website`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `WebsiteTaskLog`
---
-ALTER TABLE `WebsiteTaskLog`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
-COMMIT;
+-- 2025-02-18 06:52:02
