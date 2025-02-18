@@ -234,7 +234,7 @@ class PinnableMixin(object):
             if o.cid:
                 try:
                     resp = requests.post(
-                        f"{config.ipfs_server}/api/v0/pin/rm?arg={o.cid}",
+                        f"{config.ipfs_objects_server}/api/v0/pin/rm?arg={o.cid}",
                         timeout=30,
                     )
                     print(f"IPFS API status code: {resp.status_code}")
@@ -244,7 +244,7 @@ class PinnableMixin(object):
             if o.cid_thumb:
                 try:
                     resp = requests.post(
-                        f"{config.ipfs_server}/api/v0/pin/rm?arg={o.cid_thumb}",
+                        f"{config.ipfs_objects_server}/api/v0/pin/rm?arg={o.cid_thumb}",
                         timeout=30,
                     )
                     print(f"IPFS API status code: {resp.status_code}")

@@ -178,14 +178,17 @@ class WebHandler(BaseHandler):
         return thumb_path
 
     def ipfs_add(self, file_path):
-        api_request = f"{config.ipfs_server}/api/v0/add?pin=true"
+        print("Using IPFS server: " + config.ipfs_objects_server)
+        api_request = f"{config.ipfs_objects_server}/api/v0/add?pin=true"
         files = {"file": open(file_path, "rb")}
         try:
             resp = requests.post(api_request, files=files, timeout=30)
             o = resp.json()
             if "Hash" in o:
+                print("Added file to IPFS: " + o["Hash"])
                 return o["Hash"]
         except Exception as e:
+            print(f"Failed to add file to IPFS: {e}")
             self.logger.exception("Failed to add file to IPFS: %s", repr(e))
         return None
 

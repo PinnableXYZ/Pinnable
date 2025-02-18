@@ -919,7 +919,7 @@ td.mono {
   font-family: "Berkeley Mono", "JetBrains Mono", "Menlo", monospace;
   font-size: 12px;
   line-break: anywhere;
-  line-height: 1;
+  line-height: 1.6;
 }
 
 /* adjustments for small screens <= 400px */
