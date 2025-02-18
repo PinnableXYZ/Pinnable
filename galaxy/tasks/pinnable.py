@@ -519,16 +519,14 @@ def fetch_website_info(website_id: int):
     if website.last_known_cid is not None:
         # fetch avatar.png
         avatar_request = (
-            f"{config.ipfs_gateway}/ipfs/{website.last_known_cid}/avatar.png"
+            f"{config.ipfs_objects_gateway}/ipfs/{website.last_known_cid}/avatar.png"
         )
         resp = requests.get(avatar_request, timeout=30)
         if resp.status_code == 200:
             website.image_url = f"/ipfs/{website.last_known_cid}/avatar.png"
             session.commit()
         # fetch planet.json
-        info_request = (
-            f"{config.ipfs_gateway}/ipfs/{website.last_known_cid}/planet.json"  # noqa
-        )
+        info_request = f"{config.ipfs_objects_gateway}/ipfs/{website.last_known_cid}/planet.json"  # noqa
         resp = requests.get(info_request, timeout=30)
         if resp.status_code == 200:
             data = resp.json()

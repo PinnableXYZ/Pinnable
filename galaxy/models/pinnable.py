@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 from tornado_sqlalchemy import SQLAlchemy
 from web3 import Web3
 
-from config import database_url, ipfs_gateway
+from config import database_url, ipfs_gateway, ipfs_objects_gateway
 from galaxy.utils.models import Base
 
 engine_options = {"pool_size": 10, "max_overflow": 20, "pool_recycle": 3600}
@@ -211,7 +211,7 @@ class Website(Base):
     @property
     def cid_url(self):
         if self.last_known_cid is not None:
-            return f"{ipfs_gateway}/ipfs/{self.last_known_cid}"
+            return f"{ipfs_objects_gateway}/ipfs/{self.last_known_cid}"
         return None
 
     @property
@@ -237,7 +237,7 @@ class Website(Base):
 
     @property
     def image(self):
-        return ipfs_gateway + self.image_url
+        return ipfs_objects_gateway + self.image_url
 
 
 class WebsiteTaskLog(Base):
@@ -326,11 +326,11 @@ class CIDObject(Base):
 
     @property
     def cid_url(self):
-        return f"{ipfs_gateway}/ipfs/{self.cid}"
+        return f"{ipfs_objects_gateway}/ipfs/{self.cid}"
 
     @property
     def cid_thumb_url(self):
-        return f"{ipfs_gateway}/ipfs/{self.cid_thumb}"
+        return f"{ipfs_objects_gateway}/ipfs/{self.cid_thumb}"
 
     @property
     def cidv1(self):
