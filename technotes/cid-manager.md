@@ -27,3 +27,11 @@ POST /objects/upload: Upload a single object
 ## Preview
 
 The object for preview can be a CID too.
+
+## Nice to Have
+
+- [ ] Icons for other content types
+- [ ] A button to download the file (Content-Disposition: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
+- [ ] API for upload, list, and unpin
+- [ ] Support GIF resizing for previewing
+- [ ] Pagination
