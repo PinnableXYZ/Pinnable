@@ -163,6 +163,8 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
             if "once" not in self.web_session:
                 self.web_session["once"] = random.randrange(10000, 99999)  # nosec
             self._values["once"] = self.web_session["once"]
+            self._values["ipfs_gateway"] = config.ipfs_gateway
+            self._values["ipfs_objects_gateway"] = config.ipfs_objects_gateway
         return self._values
 
     def on_finish(self):
