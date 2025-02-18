@@ -1,0 +1,22 @@
+{% extends 'desktop/common/layout0.html' %}
+
+{% block content %}
+{{ breadcrumb(['Objects:/objects', 'Upload:/objects/upload'], theme_color)|safe }}
+<div class="box">
+  <h1>Upload</h1>
+
+  {% if add_disabled %}
+  <p>You have reached the maximum number of objects. Before you can add more objects, you need to <i class="dwb"></i> <a href="/settings">get more dwb tokens</a>.</p>
+  {% else %}
+  <form method="post" action="/objects/upload" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <input type="submit" value="Upload">
+    {{ xsrf_form_html()|safe }}
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block aside %}
+{% include 'desktop/common/quota.html' %}
+{% endblock %}

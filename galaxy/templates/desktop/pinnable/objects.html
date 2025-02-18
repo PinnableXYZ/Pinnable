@@ -1,0 +1,50 @@
+{% extends 'desktop/common/layout0.html' %}
+
+{% block content %}
+<div class="box" style="position: sticky; top: 61px; z-index: 1000; background-color: {{ theme_color }};">
+  <h1>Objects</h1>
+
+  <div class="websites-buttons">
+    {% if account.can_add_more_objects %}
+    <a href="/objects/upload" class="btn">
+      <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
+      <span>Upload</span>
+    </a>
+    <div style="flex: 1"></div>
+    <div class="flex-one-row">
+      <div class="segmented-control">
+        {% for o in order_options %}
+        <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div style="flex: 1; font-size: 16px; line-height: 1.2;">
+    {% if account.dwb_balance == 0 %}
+      Before you can upload, you need to <a href="/pricing">get some dwb tokens</a>.
+    {% else %}
+      To upload more, you need to <a href="/pricing">get more dwb tokens</a>.
+    {% endif %}
+    </div>
+    <div class="flex-one-row">
+      {% include 'desktop/common/get_dwb.html' %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="box">
+  <div class="nft-gallery tight">
+    {% for o in objects %}
+    <figure class="nft">
+      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ o.cid_thumb_url }}"></a>
+      <figcaption class="caption">{{ o.filename|e }}<br /><span class="tasklog-item-time">{{ o.size|format_bytes }}</span></figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block aside %}
+{% include 'desktop/common/quota.html' %}
+{% endblock %}

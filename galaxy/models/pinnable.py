@@ -1,6 +1,7 @@
 import math
 
 import sqlalchemy as sa
+from cid import make_cid
 from sqlalchemy import Column, String
 from sqlalchemy.dialects.mysql import BIGINT, DOUBLE, INTEGER
 from sqlalchemy.orm import relationship
@@ -30,7 +31,9 @@ class Account(Base):
         INTEGER(display_width=10, unsigned=True), nullable=False, default=1
     )
     dwb_balance = Column(DOUBLE, nullable=True, default=0)
+    ens_balance = Column(DOUBLE, nullable=True, default=0)
     websites_order_by = Column(String(100), nullable=False, default="name")
+    objects_order_by = Column(String(100), nullable=False, default="name")
     last_checked = Column(INTEGER(display_width=10, unsigned=True), nullable=True)
     websites = relationship(
         "Website",
@@ -41,6 +44,11 @@ class Account(Base):
         "NFTOwnership",
         back_populates="account",
         primaryjoin="Account.id == foreign(NFTOwnership.account_id)",
+    )
+    objects = relationship(
+        "CIDObject",
+        back_populates="account",
+        primaryjoin="Account.id == foreign(CIDObject.account_id)",
     )
 
     @property
@@ -76,17 +84,33 @@ class Account(Base):
             pass
         elif self.dwb_balance == 50:
             quota["total_websites"] = 2
+            quota["total_objects"] = 50
             quota["total_size"] = 5 * ONE_GIGA_BYTE
         elif self.dwb_balance == 100:
             quota["total_websites"] = 5
+            quota["total_objects"] = 100
             quota["total_size"] = 10 * ONE_GIGA_BYTE
         elif self.dwb_balance == 250:
             quota["total_websites"] = 25
+            quota["total_objects"] = 250
             quota["total_size"] = 25 * ONE_GIGA_BYTE
         else:
             quota["total_websites"] = math.ceil(self.dwb_balance / 10)
+            quota["total_objects"] = math.ceil(self.dwb_balance)
             quota["total_size"] = math.ceil(self.dwb_balance / 10) * ONE_GIGA_BYTE
 
+        website_per_ens = 0.1
+        object_per_ens = 1
+        if self.ens_balance > 0:
+            quota["total_websites"] = quota["total_websites"] + math.ceil(
+                float(self.ens_balance) * website_per_ens
+            )
+            quota["total_objects"] = quota["total_objects"] + math.ceil(
+                float(self.ens_balance) * object_per_ens
+            )
+            quota["total_size"] = quota["total_size"] + (
+                math.ceil(float(self.ens_balance) * website_per_ens) * ONE_GIGA_BYTE
+            )
         # quota from NFT
         for nft in self.nfts:
             if nft.image_url is not None:
@@ -94,6 +118,7 @@ class Account(Base):
                 quota["total_size"] = quota["total_size"] + (1 * ONE_GIGA_BYTE)
 
         quota["used_websites"] = len(self.websites)
+        quota["used_objects"] = len(self.objects)
 
         used_size = 0
 
@@ -114,6 +139,14 @@ class Account(Base):
         if self.quota["total_websites"] == 0:
             return False
         if self.quota["used_websites"] >= self.quota["total_websites"]:
+            return False
+        return True
+
+    @property
+    def can_add_more_objects(self) -> bool:
+        if self.quota["total_objects"] == 0:
+            return False
+        if self.quota["used_objects"] >= self.quota["total_objects"]:
             return False
         return True
 
@@ -268,3 +301,40 @@ class NFTOwnership(Base):
             return collections[contract_lower]
         else:
             return "NFT Collection"
+
+
+class CIDObject(Base):
+    __tablename__ = "CIDObject"
+    __table_arts__ = (
+        sa.Index("account_id", "account_id"),
+        sa.Index("object_uuid", "object_uuid", unique=True),
+        {"comment": "CID Object"},
+    )
+    object_uuid = Column(String(36), nullable=False, unique=True)
+    account_id = Column(INTEGER(display_width=10, unsigned=True), nullable=False)
+    account = relationship(
+        "Account",
+        back_populates="objects",
+        primaryjoin="Account.id == foreign(CIDObject.account_id)",
+    )
+    filename = Column(String(255), nullable=True)
+    content_type = Column(String(128), nullable=True)
+    size = Column(BIGINT(unsigned=True), nullable=True)
+    cid = Column(String(128), nullable=False, unique=False)
+    cid_thumb = Column(String(128), nullable=True, unique=False)
+    sha256 = Column(String(64), nullable=False, unique=False)
+
+    @property
+    def cid_url(self):
+        return f"{ipfs_gateway}/ipfs/{self.cid}"
+
+    @property
+    def cid_thumb_url(self):
+        return f"{ipfs_gateway}/ipfs/{self.cid_thumb}"
+
+    @property
+    def cidv1(self):
+        v0 = make_cid(self.cid)
+        v1 = v0.to_v1()
+        v1base32 = v1.encode("base32")
+        return v1base32.decode("utf-8")

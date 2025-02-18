@@ -3,7 +3,7 @@
 // checkWalletConnection();
 {% endblock %}
 {% block content %}
-<div class="box">
+<div class="box" style="position: sticky; top: 61px; background-color: {{ theme_color }};">
   <h1>Welcome to Pinnable</h1>
   <section>
 
@@ -16,7 +16,11 @@
     <div class="flex-one-row wrap">
       <a href="/websites?o={{ account.websites_order_by }}" class="btn">
         <img src="{{ static_url("img/network.svg") }}" height="16" />
-        <span>My Websites</span>
+        <span>Websites</span>
+      </a>
+      <a href="/objects?o={{ account.objects_order_by }}" class="btn">
+        <img src="{{ static_url("img/shippingbox.svg") }}" height="16" />
+        <span>Objects</span>
       </a>
       <a href="#;" class="btn" id="signout-button">
         <span>Sign Out</span>
@@ -168,6 +172,21 @@ Expiration Time: ${expirationTime}`;
     </script>
   </section>
 </div>
+
+<div class="box" id="wc-cleanup" style="display: none; padding: 10px 20px 10px 20px;">
+  <div class="flex-one-row">
+    <span style="font-size: 14px; flex: 1;">If WalletConnect is not working as expected, you can try a clean up to start over.</span>
+    <input type="button" class="btn" style="padding: 2px 6px 2px 6px; font-size: 14px;" value="Clean Up" onclick="localStorage.clear(); location.reload();">
+  </div>
+</div>
+{% if account == None %}
+<script type="text/javascript">
+  // If WalletConnect info is found in local storage, make wc-cleanup visible
+  if (localStorage.getItem('wagmi.connected')) {
+    document.getElementById('wc-cleanup').style.display = 'block';
+  }
+</script>
+{% endif %}
 
 <div class="box">
   <h2>What is Pinning?</h2>

@@ -10,7 +10,7 @@ import requests
 import sqlalchemy
 
 import config
-from galaxy.models.pinnable import Account, Website, WebsiteTaskLog
+from galaxy.models.pinnable import Account, CIDObject, Website, WebsiteTaskLog
 
 
 class PinnableMixin(object):
@@ -46,6 +46,13 @@ class PinnableMixin(object):
         if account:
             if account.websites_order_by != order_by:
                 account.websites_order_by = order_by
+                self.session.commit()
+
+    def update_account_objects_order_by(self, account_id: int, order_by: str):
+        account = self.get_account_by_id(account_id)
+        if account:
+            if account.objects_order_by != order_by:
+                account.objects_order_by = order_by
                 self.session.commit()
 
     def update_website_subname(self, website_id: int, subname: str):
@@ -177,3 +184,74 @@ class PinnableMixin(object):
             .first()
         )
         return a_log
+
+    def get_objects(self, account_id: int, order_by: str = "name"):
+        if order_by == "id":
+            # order by id
+            objects = (
+                self.session.query(CIDObject)
+                .filter(CIDObject.account_id == account_id)
+                .order_by(CIDObject.id.asc())
+                .all()
+            )
+        elif order_by == "pinned":
+            # order by created
+            objects = (
+                self.session.query(CIDObject)
+                .filter(CIDObject.account_id == account_id)
+                .order_by(CIDObject.created.desc())
+                .all()
+            )
+        elif order_by == "size":
+            # order by size
+            objects = (
+                self.session.query(CIDObject)
+                .filter(CIDObject.account_id == account_id)
+                .order_by(CIDObject.size.desc())
+                .all()
+            )
+        else:
+            # order by name
+            objects = (
+                self.session.query(CIDObject)
+                .filter(CIDObject.account_id == account_id)
+                .order_by(CIDObject.filename.asc())
+                .all()
+            )
+        return objects
+
+    def get_object_by_uuid(self, uuid: str):
+        obj = (
+            self.session.query(CIDObject).filter(CIDObject.object_uuid == uuid).first()
+        )
+        return obj
+
+    def delete_object_by_uuid(self, object_uuid: str) -> bool:
+        o = self.get_object_by_uuid(object_uuid)
+        if o:
+            # unpin from IPFS
+            # TODO: check if any other objects are using the same CID
+            if o.cid:
+                try:
+                    resp = requests.post(
+                        f"{config.ipfs_server}/api/v0/pin/rm?arg={o.cid}",
+                        timeout=30,
+                    )
+                    print(f"IPFS API status code: {resp.status_code}")
+                    print(f"Unpinned {o.cid} from IPFS: {resp.text}")
+                except Exception as e:
+                    print(f"Failed to unpin {o.cid} from IPFS: {e}")
+            if o.cid_thumb:
+                try:
+                    resp = requests.post(
+                        f"{config.ipfs_server}/api/v0/pin/rm?arg={o.cid_thumb}",
+                        timeout=30,
+                    )
+                    print(f"IPFS API status code: {resp.status_code}")
+                    print(f"Unpinned {o.cid_thumb} from IPFS: {resp.text}")
+                except Exception as e:
+                    print(f"Failed to unpin {o.cid_thumb} from IPFS: {e}")
+            self.session.delete(o)
+            self.session.commit()
+            return True
+        return False

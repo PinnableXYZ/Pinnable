@@ -20,7 +20,7 @@ class PinnableWebsitesHandler(WebHandler):
     def get(self):
         self.values["theme_color"] = "#c5c5c5"
         order_options = ["name", "created", "pinned", "size"]
-        order = "name"
+        order = self.current_user.websites_order_by
         if "o" in self.request.arguments:
             order = self.get_argument("o")
             if order not in order_options:
@@ -251,6 +251,69 @@ class PinnableWebsitesUnassignHandler(WebHandler):
             self.redirect("/websites")
 
 
+class PinnableObjectsHandler(WebHandler):
+    @authenticated
+    def get(self):
+        self.values["theme_color"] = "#c5c5c5"
+        order_options = ["name", "pinned", "size"]
+        order = self.current_user.objects_order_by
+        if "o" in self.request.arguments:
+            order = self.get_argument("o")
+            if order not in order_options:
+                order = "name"
+        self.values["order_options"] = order_options
+        self.values["order"] = order
+        self.update_account_objects_order_by(self.current_user.id, order)
+        self.values["objects"] = self.get_objects(self.current_user.id, order)
+        self.finalize("pinnable/objects.html")
+
+
+class PinnableObjectsUploadHandler(WebHandler):
+    @authenticated
+    def get(self):
+        if not self.current_user.can_add_more_objects:
+            self.values["add_disabled"] = True
+        else:
+            self.values["add_disabled"] = False
+        self.values["theme_color"] = "#c5c5c5"
+        self.finalize("pinnable/objects_upload.html")
+
+    @authenticated
+    def post(self):
+        if not self.current_user.can_add_more_objects:
+            self.redirect("/objects/upload")
+            return
+        self.process_object_upload()
+        if self.ok():
+            self.redirect("/objects")
+        else:
+            self.values["theme_color"] = "#c5c5c5"
+            self.finalize("pinnable/objects_upload.html")
+
+
+class PinnableObjectViewHandler(WebHandler):
+    @authenticated
+    def get(self, object_uuid: str):
+        obj = self.get_object_by_uuid(object_uuid)
+        if obj and obj.account_id == self.current_user.id:
+            self.values["object"] = obj
+            self.values["theme_color"] = "#c5c5c5"
+            self.finalize("pinnable/object_view.html")
+        else:
+            self.redirect("/objects")
+
+
+class PinnableObjectRemoveHandler(WebHandler):
+    @authenticated
+    def post(self, object_uuid: str):
+        obj = self.get_object_by_uuid(object_uuid)
+        if obj and obj.account_id == self.current_user.id:
+            self.delete_object_by_uuid(object_uuid)
+            self.redirect("/objects")
+        else:
+            self.redirect("/objects")
+
+
 pinnable_handlers = [
     (r"/websites/?$", PinnableWebsitesHandler),
     (r"/websites/([0-9]+)/?$", PinnableWebsitesInfoHandler),
@@ -268,5 +331,15 @@ pinnable_handlers = [
     (
         r"/pin/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/status/?$",  # noqa
         PinnableWebsitesPinUUIDStatusHandler,
+    ),
+    (r"/objects/?$", PinnableObjectsHandler),
+    (r"/objects/upload/?$", PinnableObjectsUploadHandler),
+    (
+        r"/objects/remove/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/?$",  # noqa
+        PinnableObjectRemoveHandler,
+    ),
+    (
+        r"/objects/([a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})/?$",  # noqa
+        PinnableObjectViewHandler,
     ),
 ]

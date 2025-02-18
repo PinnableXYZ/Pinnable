@@ -180,6 +180,28 @@ def check_account(account_id: int):
         print(f"⭐️ DWB balance for address {eth_address}: {dwb_balance}")
 
         account.dwb_balance = dwb_balance
+
+        # Check ENS token balance
+
+        ens_token_address = Web3.to_checksum_address(
+            "0xc18360217d8f7ab5e7c516566761ea12ce7f9d72"
+        )
+        ens_abi = [
+            {
+                "constant": True,
+                "inputs": [{"name": "account", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "", "type": "uint256"}],
+                "type": "function",
+            }
+        ]
+        ens_contract = w3.eth.contract(address=ens_token_address, abi=ens_abi)
+
+        ens_balance = ens_contract.functions.balanceOf(eth_address).call() / 10**18
+        print(f"🔮 ENS balance for address {eth_address}: {ens_balance}")
+
+        account.ens_balance = ens_balance
+
         account.last_checked = int(time.time())
         session.commit()
     except Exception as e:

@@ -1,17 +1,27 @@
 #!/usr/bin/env python3
 
+import hashlib
 import os.path
 import re
+import tempfile
+import time
+import uuid
 
+import magic
+import requests
+from PIL import Image
+
+import config
 import galaxy
 from galaxy.handlers import BaseHandler
+from galaxy.models.pinnable import CIDObject
 
 IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
 
 
 class WebHandler(BaseHandler):
-    def breadcrumb(self, paths):
-        o = '<div id="breadcrumb">'
+    def breadcrumb(self, paths, theme_color=None):
+        o = '<div id="breadcrumb" style="background-color: ' + theme_color + '">'
         i = 0
         for path in paths:
             if ":" in path:
@@ -103,6 +113,91 @@ class WebHandler(BaseHandler):
             if website:
                 self.add_error("Subname is used by another website.")
                 return
+
+    def process_object_upload(self):
+        if "file" not in self.request.files:
+            self.add_error("No file uploaded.")
+            return
+        file = self.request.files["file"][0]
+        original_filename = file["filename"]
+        size = len(file["body"])
+        file_path = tempfile.mkstemp()[1]
+        cid_object = None
+        cid_thumb = None
+        with open(file_path, "wb") as f:
+            f.write(file["body"])
+            file_sha256 = self.sha256(file_path)
+            # get type via libmagic
+            mime = magic.Magic(mime=True)
+            file_type = mime.from_file(file_path)
+            if file_type.startswith("image"):
+                # create thumbnail
+                thumb_path = tempfile.mkstemp()[1]
+                self.create_thumbnail(file_path, thumb_path, file_type)
+                # upload to IPFS
+                try:
+                    cid = self.ipfs_add(thumb_path)
+                    if cid:
+                        cid_thumb = cid
+                except Exception as e:
+                    self.add_error(f"Failed to upload thumbnail to IPFS: {e}")
+            try:
+                cid = self.ipfs_add(file_path)
+                if cid:
+                    cid_object = cid
+            except Exception as e:
+                self.add_error(f"Failed to upload file to IPFS: {e}")
+                return
+        o = {}
+        o["original_filename"] = original_filename
+        o["content_type"] = file_type
+        o["size"] = size
+        o["sha256"] = file_sha256
+        o["cid_object"] = cid_object
+        o["cid_thumb"] = cid_thumb
+        co = CIDObject()
+        co.object_uuid = str(uuid.uuid4())
+        co.account_id = self.current_user.id
+        co.filename = original_filename
+        co.content_type = file_type
+        co.size = size
+        co.cid = cid_object
+        co.cid_thumb = cid_thumb
+        co.sha256 = file_sha256
+        co.created = int(time.time())
+        co.last_modified = int(time.time())
+        self.session.add(co)
+        self.session.commit()
+
+    def create_thumbnail(self, file_path, thumb_path, file_type):
+        img = Image.open(file_path)
+        img.thumbnail((256, 256))
+        # Extract format from MIME type (e.g., 'image/jpeg' -> 'JPEG')
+        img_format = file_type.split("/")[-1].upper()
+        img.save(thumb_path, format=img_format, quality=95)
+        return thumb_path
+
+    def ipfs_add(self, file_path):
+        api_request = f"{config.ipfs_server}/api/v0/add?pin=true"
+        files = {"file": open(file_path, "rb")}
+        try:
+            resp = requests.post(api_request, files=files, timeout=30)
+            o = resp.json()
+            if "Hash" in o:
+                return o["Hash"]
+        except Exception as e:
+            self.logger.exception("Failed to add file to IPFS: %s", repr(e))
+        return None
+
+    def sha256(self, file_path):
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            while True:
+                data = f.read(65536)
+                if not data:
+                    break
+                sha256.update(data)
+        return sha256.hexdigest()
 
     def finalize(
         self, template_name, write_static=False, static_key="", output_string=False

@@ -1,0 +1,48 @@
+{% extends 'desktop/common/layout0.html' %}
+
+{% block content %}
+{{ breadcrumb(['Objects:/objects', object.object_uuid], theme_color)|safe }}
+<form method="post" action="/objects/remove/{{ object.object_uuid }}" id="remove-object-{{ object.object_uuid }}">
+{{ xsrf_form_html()|safe }}
+</form>
+<div class="box">
+  <h1 style="line-break: anywhere">{{ object.filename|e }}</h1>
+
+  <section>
+    <table cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="50">CIDv0</td>
+        <td class="mono"><div class="flex-one-row">
+          <span style="flex: 1;"><a href="https://ipfs.io/ipfs/{{ object.cid|e }}" target="_blank" class="dashed">{{ object.cid|e }}</a></span>
+          <input type="button" value="Copy" onclick="copyToClipboard('{{ object.cid|e }}')">
+        </div></td>
+      </tr>
+      <tr>
+        <td width="50">CIDv1</td>
+        <td class="mono"><div class="flex-one-row">
+          <span style="flex: 1;"><a href="https://ipfs.io/ipfs/{{ object.cidv1|e }}" target="_blank" class="dashed">{{ object.cidv1|e }}</a></span>
+          <input type="button" value="Copy" onclick="copyToClipboard('{{ object.cidv1|e }}')">
+        </div></td>
+      </tr>
+    </table>
+  </section>
+</div>
+
+<div class="box">
+  <figure style="margin-block-start: 0px; margin-block-end: 0px; text-align: center;">
+    <img src="{{ object.cid_url }}" style="max-width: 100%; box-shadow: var(--shadows);">
+    <figcaption class="tasklog-item-time">{{ object.content_type|e }} • {{ object.size|format_bytes }}</figcaption>
+  </figure>
+</div>
+
+<div class="box">
+  <a href="javascript:removeObject('{{ object.object_uuid }}')" class="btn">
+    <img src="{{ static_url('img/minus.circle.fill.svg')}}" height="16" alt="Remove" />
+    <span>Remove</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block aside %}
+{% include 'desktop/common/quota.html' %}
+{% endblock %}

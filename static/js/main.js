@@ -137,6 +137,13 @@ function removeWebsite(websiteId) {
   }
 }
 
+function removeObject(objectId) {
+  if (confirm('Are you sure you want to remove this object?')) {
+    const form = document.getElementById(`remove-object-${objectId}`);
+    form.submit();
+  }
+}
+
 function toggleVisibility(elem) {
   if (elem.type === "password") {
       elem.type = "text";
@@ -150,4 +157,8 @@ const copyValue = async (elem) => {
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   await navigator.clipboard.writeText(copyText.value);
+}
+
+const copyToClipboard = async (text) => {
+  await navigator.clipboard.writeText(text);
 }

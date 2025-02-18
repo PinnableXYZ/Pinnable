@@ -1,7 +1,7 @@
 {% extends 'desktop/common/layout0.html' %}
 {% block content %}
 {{ web_session_message()|safe }}
-{{ breadcrumb(['Websites:/websites?o=' + account.websites_order_by, website.name + ':/websites/' + str(website.id), 'Subname:/websites/subname/' + str(website.id)])|safe }}
+{{ breadcrumb(['Websites:/websites?o=' + account.websites_order_by, website.name + ':/websites/' + str(website.id), 'Subname:/websites/subname/' + str(website.id)], theme_color)|safe }}
 <div class="box">
 <h1>Assign a Subname</h1>
 <p>You can assign a subname on <code>iweb.eth</code> for your website, and your website will become accessible with <code>[subname].iweb.eth</code></p>
