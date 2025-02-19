@@ -34,6 +34,7 @@ The object for preview can be a CID too.
 - [ ] Generic square icons for other types
 - [ ] Pagination
 - [x] Prewarm with a list of public gateways
+- [ ] Drag-n-drop upload interface
 - [ ] API for upload, list, and unpin
 - [x] /cid-preview/ for safe and fast preview
 
