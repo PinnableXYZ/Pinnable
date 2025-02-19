@@ -30,7 +30,20 @@
 
 <div class="box">
   <figure style="margin-block-start: 0px; margin-block-end: 0px; text-align: center;">
+
+  {% if object.is_image %}
     <img src="/cid-preview/{{ object.cid }}" style="max-width: 100%; box-shadow: var(--shadows);">
+  {% elif object.is_audio %}
+    <audio controls style="width: 61.8%; box-shadows: var(--shadows)" src="{{ object.cid_url }}"></audio>
+  {% elif object.is_video %}
+    <video preload muted playsinline autoplay loop controls style="max-width: 100%; aspect-ratio: 16 / 9; box-shadow: var(--shadows); border-radius: 2px;">
+      <source src="{{ object.cid_url }}" type="{{ object.content_type }}">
+    </video>
+  {% elif object.is_pdf %}
+    <embed src="{{ object.cid_url }}" type="{{ object.content_type }}" style="width: 100%; aspect-ratio: 5 / 4; box-shadow: var(--shadows);">
+  {% else %}
+    <img src="{{ static_url('img/file.png') }}" style="max-width: 128px; box-shadow: var(--shadows);">
+  {% endif %}
     <figcaption class="tasklog-item-time">{{ object.content_type|e }} • {{ object.size|format_bytes }}</figcaption>
   </figure>
 </div>

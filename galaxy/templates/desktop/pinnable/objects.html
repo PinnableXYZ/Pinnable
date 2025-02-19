@@ -39,7 +39,7 @@
   <div class="nft-gallery tight">
     {% for o in objects %}
     <figure class="nft">
-    {% if o.is_image %}
+    {% if o.is_image or o.cid_thumb %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="/cid-preview/{{ o.cid_thumb }}"></a>
     {% elif o.is_audio %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/audio.png') }}"></a>
@@ -48,11 +48,7 @@
     {% elif o.is_pdf %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/pdf.png') }}"></a>
     {% else %}
-      {% if o.cid_thumb %}
-      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="/cid-preview/{{ o.cid_thumb }}"></a>
-      {% else %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/file.png') }}"></a>
-      {% endif %}
     {% endif %}
       <figcaption class="caption">{{ o.filename|e }}<br /><span class="tasklog-item-time">{{ o.size|format_bytes }}</span></figcaption>
     </figure>
