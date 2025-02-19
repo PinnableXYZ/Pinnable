@@ -66,6 +66,13 @@ a.dashed:visited {
   border-bottom: 1px dashed var(--color-link);
 }
 
+a.ul:link,
+a.ul:visited {
+  color: var(--color-link);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-link);
+}
+
 a.logo:link,
 a.logo:visited {
   text-decoration: none;
