@@ -171,8 +171,8 @@ class WebHandler(BaseHandler):
         self.session.commit()
         print("Added CIDObject: " + co.object_uuid)
         self.flash("File uploaded successfully.")
-        self.q.enqueue(prewarm_cid, cid_object)
-        self.q.enqueue(prewarm_cid, cid_thumb)
+        self.q2.enqueue(prewarm_cid, cid_object)
+        self.q2.enqueue(prewarm_cid, cid_thumb)
 
     def create_thumbnail(self, file_path, thumb_path, file_type):
         img = Image.open(file_path)

@@ -60,6 +60,12 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
         return self._q
 
     @property
+    def q2(self):
+        if not hasattr(self, "_q2"):
+            self._q2 = Queue("cid", connection=self.r, default_timeout=1800)
+        return self._q2
+
+    @property
     def env(self):
         return self.application.env
 
