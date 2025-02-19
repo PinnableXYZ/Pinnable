@@ -7,6 +7,7 @@ from sqlalchemy.dialects.mysql import BIGINT, DOUBLE, INTEGER
 from sqlalchemy.orm import relationship
 from tornado_sqlalchemy import SQLAlchemy
 from web3 import Web3
+from yarl import URL
 
 from config import database_url, ipfs_gateway, ipfs_objects_gateway
 from galaxy.utils.models import Base
@@ -336,7 +337,8 @@ class CIDObject(Base):
     def download_url(self):
         if self.is_image or self.is_audio or self.is_pdf:
             return f"/cid-preview/{self.cid}"
-        return self.cid_url
+        url = URL(self.cid_url).with_query({"filename": self.filename})
+        return str(url)
 
     @property
     def cidv1(self):
