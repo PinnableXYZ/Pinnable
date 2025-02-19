@@ -50,7 +50,12 @@
   </figure>
 </div>
 
-<div class="box">
+<div class="box btns">
+  <a href="{{ object.download_url }}" target="_blank" class="btn" download="{{ object.filename|e }}">
+    <img src="{{ static_url('img/square.and.arrow.down.svg')}}" height="16" alt="Download" />
+    <span>Download</span>
+  </a>
+
   <a href="javascript:removeObject('{{ object.object_uuid }}')" class="btn">
     <img src="{{ static_url('img/minus.circle.fill.svg')}}" height="16" alt="Remove" />
     <span>Remove</span>

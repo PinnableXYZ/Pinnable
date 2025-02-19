@@ -24,9 +24,13 @@ class CIDPreviewHandler(APIHandler):
         if resp.status_code == 200:
             headers = dict(resp.headers)
             content_type = headers.get("Content-Type", "application/octet-stream")
-            if content_type.startswith("image/"):
+            if (
+                content_type.startswith("image/")
+                or content_type.startswith("audio/")
+                or content_type == "application/pdf"
+                or content_type.startswith("video/")
+            ):
                 self.set_header("Content-Type", content_type)
-                self.set_header("Cache-Control", "public, max-age=31536000")
                 self.set_header("Access-Control-Allow-Origin", "*")
                 self.set_header("Access-Control-Allow-Methods", "GET")
                 self.set_header("Access-Control-Allow-Headers", "Content-Type")
@@ -34,14 +38,17 @@ class CIDPreviewHandler(APIHandler):
                 if "Content-Length" in headers:
                     size = int(headers.get("Content-Length"))
                 else:
+                    self.set_header("Cache-Control", "public, max-age=60")
                     self.set_status(400)
                     self.write("Missing Content-Length header for CID preview")
                     return
                 if size > (1024 * 1024 * 100):
+                    self.set_header("Cache-Control", "public, max-age=60")
                     self.set_status(400)
                     self.write("File too large for preview")
                     return
                 try:
+                    self.set_header("Cache-Control", "public, max-age=31536000")
                     binary = requests.get(url, timeout=30).content
                     self.write(binary)
                 except Exception as e:
@@ -50,7 +57,9 @@ class CIDPreviewHandler(APIHandler):
                     self.write(f"Failed to fetch CID preview: {e}")
             else:
                 self.set_status(400)
-                self.write("This endpoint only supports image previews")
+                self.write(
+                    "This endpoint only supports image, audio, video, and PDF previews"
+                )
         else:
             self.set_status(404)
             self.write("CID not available")

@@ -333,6 +333,12 @@ class CIDObject(Base):
         return f"{ipfs_objects_gateway}/ipfs/{self.cid_thumb}"
 
     @property
+    def download_url(self):
+        if self.is_image or self.is_audio or self.is_pdf:
+            return f"/cid-preview/{self.cid}"
+        return self.cid_url
+
+    @property
     def cidv1(self):
         v0 = make_cid(self.cid)
         v1 = v0.to_v1()
