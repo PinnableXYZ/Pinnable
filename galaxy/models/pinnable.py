@@ -338,3 +338,31 @@ class CIDObject(Base):
         v1 = v0.to_v1()
         v1base32 = v1.encode("base32")
         return v1base32.decode("utf-8")
+
+    @property
+    def is_image(self):
+        if self.content_type is not None:
+            if self.content_type.startswith("image/"):
+                return True
+        return False
+
+    @property
+    def is_audio(self):
+        if self.content_type is not None:
+            if self.content_type.startswith("audio/"):
+                return True
+        return False
+
+    @property
+    def is_pdf(self):
+        if self.content_type is not None:
+            if self.content_type == "application/pdf":
+                return True
+        return False
+
+    @property
+    def is_video(self):
+        if self.content_type is not None:
+            if self.content_type.startswith("video/"):
+                return True
+        return False
