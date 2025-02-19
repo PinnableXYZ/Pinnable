@@ -565,3 +565,19 @@ def update_website_subname_cid(website_id: int, cid: str):
         except Exception as e:
             print("🗿 Namestone API error: ", e)
     session.close()
+
+
+def prewarm_cid(cid: str):
+    # Prewarm the CID
+    for gateway in config.prewarm_gateways:
+        prewarm_request = f"{gateway}/ipfs/{cid}"
+        print(f"🔥 Prewarming {prewarm_request}")
+        try:
+            resp = requests.get(prewarm_request, timeout=30)
+            if resp.status_code == 200:
+                print(f"🔥 Prewarmed {prewarm_request}")
+            else:
+                print(f"😖 Failed to prewarm {prewarm_request}")
+        except Exception as e:
+            print(e)
+            print(f"😖 Failed to prewarm {prewarm_request}")

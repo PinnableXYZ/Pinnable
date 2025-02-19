@@ -15,6 +15,7 @@ import config
 import galaxy
 from galaxy.handlers import BaseHandler
 from galaxy.models.pinnable import CIDObject
+from galaxy.tasks.pinnable import prewarm_cid
 
 IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
 
@@ -168,6 +169,10 @@ class WebHandler(BaseHandler):
         co.last_modified = int(time.time())
         self.session.add(co)
         self.session.commit()
+        print("Added CIDObject: " + co.object_uuid)
+        self.flash("File uploaded successfully.")
+        self.q.enqueue(prewarm_cid, cid_object)
+        self.q.enqueue(prewarm_cid, cid_thumb)
 
     def create_thumbnail(self, file_path, thumb_path, file_type):
         img = Image.open(file_path)
