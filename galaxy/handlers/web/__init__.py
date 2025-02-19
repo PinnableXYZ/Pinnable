@@ -9,6 +9,7 @@ import uuid
 
 import magic
 import requests
+from loguru import logger
 from PIL import Image
 
 import config
@@ -18,6 +19,21 @@ from galaxy.models.pinnable import CIDObject
 from galaxy.tasks.pinnable import prewarm_cid
 
 IPNS_RE = re.compile(r"^k51[0-9a-z]{59}$")
+
+
+class APIHandler(BaseHandler):
+    """
+    This APIHandler never sends any cookies.
+
+    It is best used for endpoints like /cid-preview/ or /api/ that do not require
+    any session data.
+    """
+
+    def prepare(self):
+        self.logger = logger
+
+    def on_finish(self):
+        self.session.close()
 
 
 class WebHandler(BaseHandler):

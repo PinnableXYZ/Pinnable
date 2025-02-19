@@ -3,10 +3,10 @@
 import requests
 
 import config
-from galaxy.handlers.web import WebHandler
+from galaxy.handlers.web import APIHandler
 
 
-class CIDPreviewHandler(WebHandler):
+class CIDPreviewHandler(APIHandler):
     def get(self, cid):
         obj = self.get_object_by_cid_any(cid)
         if not obj:

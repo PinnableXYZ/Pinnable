@@ -31,7 +31,7 @@ The object for preview can be a CID too.
 ## Must Have
 
 - [ ] Preview for video and audio
-- [ ] Generic icons for other types
+- [ ] Generic square icons for other types
 - [ ] Pagination
 - [x] Prewarm with a list of public gateways
 - [ ] API for upload, list, and unpin
@@ -42,3 +42,4 @@ The object for preview can be a CID too.
 - [ ] A button to download the file (Content-Disposition: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
 - [ ] Support GIF resizing for previewing
 - [ ] Support for large file (>1G)
+- [ ] Text meta info, save as CID
