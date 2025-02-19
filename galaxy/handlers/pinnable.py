@@ -226,6 +226,14 @@ class PinnableMixin(object):
         )
         return obj
 
+    def get_object_by_cid_any(self, cid: str):
+        obj = (
+            self.session.query(CIDObject)
+            .filter((CIDObject.cid == cid) | (CIDObject.cid_thumb == cid))
+            .first()
+        )
+        return obj
+
     def delete_object_by_uuid(self, object_uuid: str) -> bool:
         o = self.get_object_by_uuid(object_uuid)
         if o:

@@ -37,7 +37,7 @@
   <div class="nft-gallery tight">
     {% for o in objects %}
     <figure class="nft">
-      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ o.cid_thumb_url }}"></a>
+      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="/cid-preview/{{ o.cid_thumb }}"></a>
       <figcaption class="caption">{{ o.filename|e }}<br /><span class="tasklog-item-time">{{ o.size|format_bytes }}</span></figcaption>
     </figure>
     {% endfor %}

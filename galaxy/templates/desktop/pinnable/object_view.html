@@ -11,16 +11,16 @@
   <section>
     <table cellpadding="0" cellspacing="0">
       <tr>
-        <td width="50">CIDv0</td>
+        <td width="36" style="font-size: 12px;">CIDv0</td>
         <td class="mono"><div class="flex-one-row">
-          <span style="flex: 1;"><a href="https://ipfs.io/ipfs/{{ object.cid|e }}" target="_blank" class="dashed">{{ object.cid|e }}</a></span>
+          <span style="flex: 1; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><a href="https://ipfs.io/ipfs/{{ object.cid|e }}" target="_blank" class="dashed">{{ object.cid|e }}</a></span>
           <input type="button" value="Copy" onclick="copyToClipboard('{{ object.cid|e }}')">
         </div></td>
       </tr>
       <tr>
-        <td width="50">CIDv1</td>
+        <td width="36" style="font-size: 12px;">CIDv1</td>
         <td class="mono"><div class="flex-one-row">
-          <span style="flex: 1;"><a href="https://ipfs.io/ipfs/{{ object.cidv1|e }}" target="_blank" class="dashed">{{ object.cidv1|e }}</a></span>
+            <span style="flex: 1; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;"><a href="https://ipfs.io/ipfs/{{ object.cidv1|e }}" target="_blank" class="dashed">{{ object.cidv1|e }}</a></span>
           <input type="button" value="Copy" onclick="copyToClipboard('{{ object.cidv1|e }}')">
         </div></td>
       </tr>
@@ -30,7 +30,7 @@
 
 <div class="box">
   <figure style="margin-block-start: 0px; margin-block-end: 0px; text-align: center;">
-    <img src="{{ object.cid_url }}" style="max-width: 100%; box-shadow: var(--shadows);">
+    <img src="/cid-preview/{{ object.cid }}" style="max-width: 100%; box-shadow: var(--shadows);">
     <figcaption class="tasklog-item-time">{{ object.content_type|e }} • {{ object.size|format_bytes }}</figcaption>
   </figure>
 </div>

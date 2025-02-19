@@ -23,6 +23,7 @@ define("port", default=12345, help="run on the given port", type=int)
 
 def build_handlers():
     from galaxy.handlers.web.api import api_handlers
+    from galaxy.handlers.web.cid import cid_handlers
     from galaxy.handlers.web.cron import cron_handlers
     from galaxy.handlers.web.dl import dl_handlers
     from galaxy.handlers.web.pinnable import pinnable_handlers
@@ -36,6 +37,7 @@ def build_handlers():
         + system_handlers
         + dl_handlers
         + api_handlers
+        + cid_handlers
         + [(r"/(.*)$", System404Handler)]
     )
 
