@@ -34,7 +34,9 @@
   {% if object.is_image %}
     <img src="/cid-preview/{{ object.cid }}" style="max-width: 100%; box-shadow: var(--shadows);">
   {% elif object.is_audio %}
-    <audio controls style="width: 61.8%; box-shadows: var(--shadows)" src="{{ object.cid_url }}"></audio>
+    <audio preload loop controls style="width: 61.8%; box-shadows: var(--shadows);">
+      <source src="{{ object.cid_url }}" type="{{ object.content_type }}">
+    </audio>
   {% elif object.is_video %}
     <video preload muted playsinline autoplay loop controls style="max-width: 100%; aspect-ratio: 16 / 9; box-shadow: var(--shadows); border-radius: 2px;">
       <source src="{{ object.cid_url }}" type="{{ object.content_type }}">
