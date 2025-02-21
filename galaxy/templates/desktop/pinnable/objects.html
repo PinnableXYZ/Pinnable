@@ -50,7 +50,7 @@
     {% elif o.is_zip %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/types/zip.png') }}" class="plain"></a>
     {% else %}
-      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/file.png') }}"></a>
+      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/general.png') }}"></a>
     {% endif %}
       <figcaption class="caption">{{ o.filename|e }}<br /><span class="tasklog-item-time">{{ o.size|format_bytes }}</span></figcaption>
     </figure>

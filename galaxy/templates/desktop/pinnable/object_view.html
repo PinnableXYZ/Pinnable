@@ -46,7 +46,7 @@
   {% elif object.is_zip %}
     <img src="{{ static_url('img/types/zip.png') }}" style="max-width: 128px; box-shadow: none !important;">
   {% else %}
-    <img src="{{ static_url('img/file.png') }}" style="max-width: 128px; box-shadow: var(--shadows);">
+    <img src="{{ static_url('img/general.png') }}" style="max-width: 128px; box-shadow: var(--shadows);">
   {% endif %}
     <figcaption class="tasklog-item-time">{{ object.content_type|e }} • {{ object.size|format_bytes }}</figcaption>
   </figure>
