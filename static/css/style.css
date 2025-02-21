@@ -496,6 +496,10 @@ img.screenshot {
   max-width: 100%;
 }
 
+img.plain {
+  box-shadow: none !important;
+}
+
 .btn-siwe {
   width: 200px;
   border-radius: 40px;

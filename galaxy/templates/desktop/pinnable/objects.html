@@ -47,6 +47,8 @@
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/video.png') }}"></a>
     {% elif o.is_pdf %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/pdf.png') }}"></a>
+    {% elif o.is_zip %}
+      <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/types/zip.png') }}" class="plain"></a>
     {% else %}
       <a href="/objects/{{ o.object_uuid }}" class="img-link"><img src="{{ static_url('img/file.png') }}"></a>
     {% endif %}

@@ -369,6 +369,13 @@ class CIDObject(Base):
         return False
 
     @property
+    def is_zip(self):
+        if self.content_type is not None:
+            if self.content_type == "application/zip":
+                return True
+        return False
+
+    @property
     def is_video(self):
         if self.content_type is not None:
             if self.content_type.startswith("video/"):

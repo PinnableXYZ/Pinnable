@@ -43,6 +43,8 @@
     </video>
   {% elif object.is_pdf %}
     <embed src="{{ object.cid_url }}" type="{{ object.content_type }}" style="width: 100%; aspect-ratio: 5 / 4; box-shadow: var(--shadows);">
+  {% elif object.is_zip %}
+    <img src="{{ static_url('img/types/zip.png') }}" style="max-width: 128px; box-shadow: none !important;">
   {% else %}
     <img src="{{ static_url('img/file.png') }}" style="max-width: 128px; box-shadow: var(--shadows);">
   {% endif %}
