@@ -46,5 +46,5 @@ The object for preview can be a CID too.
 - [ ] Support for large file (>1G)
 - [ ] Text meta info, save as CID
 - [ ] Projects, like folders, for organzing uploads
-- [ ] Use OpenCV to get the first frame of the video as thumbnail
+- [x] Use OpenCV to get the first frame of the video as thumbnail
 - [ ] Feature parity with Infura IPFS Add API: https://docs.metamask.io/services/reference/ipfs/http-api-methods/add/
