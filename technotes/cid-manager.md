@@ -42,6 +42,7 @@ The object for preview can be a CID too.
 
 ## Nice to Have
 
+- [ ] A basic dashboard for statistics
 - [x] A button to download the file (Content-Disposition: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Disposition)
 - [ ] Support GIF resizing for previewing
 - [ ] Support for large file (>1G)
