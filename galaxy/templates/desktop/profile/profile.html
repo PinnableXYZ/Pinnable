@@ -40,9 +40,13 @@
 {% endif %}
 <div class="box">
   <div class="flex-one-row">
-  <a href="/websites{% if account %}?o={{ account.websites_order_by }}{% endif %}" class="btn">
+  <a href="/websites" class="btn">
     <img src="{{ static_url("img/network.svg") }}" height="16" />
-    <span>My Websites</span>
+    <span>Websites</span>
+  </a>
+  <a href="/objects" class="btn">
+    <img src="{{ static_url("img/shippingbox.svg") }}" height="16" />
+    <span>Objects</span>
   </a>
   <a href="#;" onclick="signout()" class="btn">
     <span>Sign Out</span>
