@@ -7,9 +7,11 @@ import tempfile
 import time
 import uuid
 
+import cv2
 import magic
 import requests
 from loguru import logger
+from pdf2image import convert_from_path
 from PIL import Image
 
 import config
@@ -131,6 +133,27 @@ class WebHandler(BaseHandler):
                 self.add_error("Subname is used by another website.")
                 return
 
+    def save_first_frame(self, video_path, output_image_path):
+        # Open the video file
+        video_capture = cv2.VideoCapture(video_path)
+
+        if not video_capture.isOpened():
+            print("Error: Couldn't open video file.")
+            return
+
+        # Read the first frame
+        ret, frame = video_capture.read()
+
+        if ret:
+            # Save the frame as a PNG image
+            cv2.imwrite(output_image_path, frame)
+            print(f"First frame saved as {output_image_path}")
+        else:
+            print("Error: Couldn't read the first frame.")
+
+        # Release the video capture object
+        video_capture.release()
+
     def process_object_upload(self):
         if "file" not in self.request.files:
             self.add_error("No file uploaded.")
@@ -147,15 +170,47 @@ class WebHandler(BaseHandler):
             # get type via libmagic
             mime = magic.Magic(mime=True)
             file_type = mime.from_file(file_path)
+            if file_type == "application/pdf":
+                # create thumbnail
+                thumb_path = tempfile.mkstemp()[1]
+
+                pages = convert_from_path(file_path, first_page=1, last_page=1)
+                # Save the first page as PNG
+                pages[0].save(thumb_path, "PNG")
+
+                # upload to IPFS
+                try:
+                    if os.path.exists(thumb_path):
+                        cid = self.ipfs_add(thumb_path)
+                        if cid:
+                            cid_thumb = cid
+                        os.remove(thumb_path)
+                except Exception as e:
+                    self.add_error(f"Failed to upload thumbnail to IPFS: {e}")
             if file_type.startswith("image"):
                 # create thumbnail
                 thumb_path = tempfile.mkstemp()[1]
                 self.create_thumbnail(file_path, thumb_path, file_type)
                 # upload to IPFS
                 try:
-                    cid = self.ipfs_add(thumb_path)
-                    if cid:
-                        cid_thumb = cid
+                    if os.path.exists(thumb_path):
+                        cid = self.ipfs_add(thumb_path)
+                        if cid:
+                            cid_thumb = cid
+                        os.remove(thumb_path)
+                except Exception as e:
+                    self.add_error(f"Failed to upload thumbnail to IPFS: {e}")
+            if file_type.startswith("video"):
+                # create thumbnail
+                thumb_path = tempfile.mkstemp()[1] + ".png"
+                self.save_first_frame(file_path, thumb_path)
+                # upload to IPFS
+                try:
+                    if os.path.exists(thumb_path):
+                        cid = self.ipfs_add(thumb_path)
+                        if cid:
+                            cid_thumb = cid
+                        os.remove(thumb_path)
                 except Exception as e:
                     self.add_error(f"Failed to upload thumbnail to IPFS: {e}")
             try:
