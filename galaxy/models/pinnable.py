@@ -9,7 +9,7 @@ from tornado_sqlalchemy import SQLAlchemy
 from web3 import Web3
 from yarl import URL
 
-from config import database_url, ipfs_gateway, ipfs_objects_gateway
+from config import database_url, ipfs_objects_gateway, ipns_gateway
 from galaxy.utils.models import Base
 
 engine_options = {"pool_size": 10, "max_overflow": 20, "pool_recycle": 3600}
@@ -203,9 +203,9 @@ class Website(Base):
     @property
     def url(self):
         if self.kind == "ENS":
-            return f"{ipfs_gateway}/ipns/{self.name}"
+            return f"{ipns_gateway}/ipns/{self.name}"
         elif self.kind == "IPNS":
-            return f"{ipfs_gateway}/ipns/{self.name}"
+            return f"{ipns_gateway}/ipns/{self.name}"
         else:
             return None
 
