@@ -74,6 +74,7 @@ class Account(Base):
 
         quota = {}
         quota["total_websites"] = 0
+        quota["total_objects"] = 0
         quota["total_size"] = 0
         quota["used_websites"] = 0
         quota["used_size"] = 0
