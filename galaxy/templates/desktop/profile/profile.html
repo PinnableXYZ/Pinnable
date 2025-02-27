@@ -6,8 +6,10 @@
     <div class="profile-info">
       <div class="profile-name">{{ account.display_name }}</div>
       <div class="profile-info-row">Member since {{ account.humanize_time(account.created )}}</div>
-      <div class="profile-info-row"><i class="dwb"></i> {{ account.dwb_balance|format_tokens }}</div>
-
+      <div class="profile-info-row">
+        <span class="token-balance"><i class="dwb"></i> {{ account.dwb_balance|format_tokens }}</span>
+        <span class="token-balance"><i class="ens"></i> {{ account.ens_balance|format_tokens }}</span>
+      </div>
     </div>
   </div>
   <script type="text/javascript">

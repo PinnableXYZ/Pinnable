@@ -887,6 +887,18 @@ ul:last-child {
 
 .profile-info-row {
   font-size: 14px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.token-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono-font-family);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .nft-bar {
