@@ -206,6 +206,7 @@ class PinnableWebsitesRemoveHandler(WebHandler):
 class PinnableWebsitesSubnameHandler(WebHandler):
     @authenticated
     def get(self, website_id: int):
+        self.values["theme_color"] = "#c5c5c5"
         website = self.get_website_by_id(website_id)
         if website and website.account_id == self.current_user.id:
             self.values["website"] = website
@@ -215,6 +216,7 @@ class PinnableWebsitesSubnameHandler(WebHandler):
 
     @authenticated
     def post(self, website_id: int):
+        self.values["theme_color"] = "#c5c5c5"
         website = self.get_website_by_id(website_id)
         if website and website.account_id == self.current_user.id:
             self.verify_website_subname(website.id)
