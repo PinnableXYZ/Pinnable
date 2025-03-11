@@ -315,6 +315,29 @@ def check_website(website_id: int):
     if website.pin_api_uuid is None or len(website.pin_api_uuid) == 0:
         website.pin_api_uuid = str(uuid.uuid4())
         session.commit()
+    if website.kind == "IPNS":
+        # Try resolve the IPNS name with IPFS API
+        api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"  # noqa
+        print(f"POST: {api_request}")
+        try:
+            resp = requests.post(api_request, timeout=30)
+            if resp.status_code == 200:
+                data = resp.json()
+                if "Path" in data:
+                    path = data["Path"]
+                    print(f"🌐 Resolved IPNS name {website.name} to IPFS path: {path}")
+                    if path.startswith("/ipfs/"):
+                        cid = path[6:]
+                        if cid.endswith("/"):
+                            cid = cid[:-1]
+                        if website.last_known_cid != cid:
+                            website.last_known_cid = cid
+                        if website.last_known_ipns != website.name:
+                            website.last_known_ipns = website.name
+                        website.last_checked = int(time.time())
+                    session.commit()
+        except Exception as e:
+            print(e)
     if website.kind == "ENS":
         # Try resolve the ENS name with IPFS API
         api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"  # noqa
