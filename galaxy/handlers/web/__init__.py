@@ -78,14 +78,15 @@ class WebHandler(BaseHandler):
             name = None
             name_length = 0
             self.add_error("Name is required.")
+            return
         name = name.lower()
         self.values["website_name"] = name
         if name_length == 62 and name.startswith("k51"):
             if not IPNS_RE.match(name):
                 self.add_error("Invalid IPNS provided.")
-            return
-        existing_name = self.get_website(name, account_id=self.current_user.id)
-        if existing_name:
+                return
+        existing_name = self.get_website(name=name, account_id=self.current_user.id)
+        if existing_name is not None:
             self.add_error(
                 "Website is already added: <a href='/websites/%d'>%s</a>"
                 % (existing_name.id, name)

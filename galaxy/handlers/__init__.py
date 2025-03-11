@@ -117,6 +117,8 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
         return None
 
     def add_error(self, problem: str):
+        if "errors" not in self.values:
+            self.values["errors"] = 0
         self.values["errors"] += 1
         if problem is not None:
             self.values["error_messages"].append(problem)

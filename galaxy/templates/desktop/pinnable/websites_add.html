@@ -8,7 +8,7 @@
 {% if errors > 0 %}
 <ul>
 {% for error in error_messages %}
-<li>{% if 'Website is added' in error %}{{ error|safe }}{% else %}{{ error }}{% endif %}</li>
+<li>{% if 'added' in error %}{{ error|safe }}{% else %}{{ error }}{% endif %}</li>
 {% endfor %}
 </ul>
 {% endif %}
