@@ -67,6 +67,9 @@ class PinnableMixin(object):
                 if website.last_known_cid:
                     # Write CID to Namestone
                     self.update_website_subname_cid(website.id)
+                elif website.last_known_ipns:
+                    # Write IPNS to Namestone
+                    self.update_website_subname_ipns(website.id)
             self.session.commit()
 
     def update_website_subname_cid(self, website_id: int):
@@ -81,6 +84,21 @@ class PinnableMixin(object):
                     "name": website.subname,
                     "address": website.account.address,
                     "contenthash": "ipfs://" + website.last_known_cid,
+                }
+                requests.post(namestone_api, headers=headers, json=data, timeout=30)
+
+    def update_website_subname_ipns(self, website_id: int):
+        # TODO: move this method to Website model's instance method
+        website = self.get_website_by_id(website_id)
+        if website:
+            if website.subname and website.last_known_ipns:
+                namestone_api = "https://namestone.xyz/api/public_v1/set-name"
+                headers = {"Authorization": config.namestone_api_token}
+                data = {
+                    "domain": config.namestone_domain,
+                    "name": website.subname,
+                    "address": website.account.address,
+                    "contenthash": "ipns://" + website.last_known_ipns,
                 }
                 requests.post(namestone_api, headers=headers, json=data, timeout=30)
 
