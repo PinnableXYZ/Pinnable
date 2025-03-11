@@ -45,7 +45,11 @@ class WebHandler(BaseHandler):
         for path in paths:
             if ":" in path:
                 parts = path.split(":")
-                o = o + '<a href="' + parts[1] + '">' + parts[0] + "</a>"
+                if len(parts[0]) > 40:
+                    style = " style='line-break: anywhere;'"
+                else:
+                    style = ""
+                o = o + '<a href="' + parts[1] + '"' + style + ">" + parts[0] + "</a>"
             else:
                 o = o + "<span>" + path + "</span>"
             i = i + 1

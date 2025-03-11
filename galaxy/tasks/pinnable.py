@@ -330,8 +330,6 @@ def check_website(website_id: int):
                         cid = path[6:]
                         if cid.endswith("/"):
                             cid = cid[:-1]
-                        if website.last_known_cid != cid:
-                            website.last_known_cid = cid
                         if website.last_known_ipns != website.name:
                             website.last_known_ipns = website.name
                         website.last_checked = int(time.time())
