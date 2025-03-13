@@ -6,6 +6,7 @@ import os.path
 
 import pylibmc
 import redis
+import sentry_sdk
 import tornado.ioloop
 import tornado.locks
 import tornado.web
@@ -19,6 +20,12 @@ from galaxy.handlers.web.system import System404Handler
 from galaxy.utils.filters import format_bytes, format_tokens
 
 define("port", default=12345, help="run on the given port", type=int)
+
+if config.sentry_dsn is not None:
+    sentry_sdk.init(
+        dsn=config.sentry_dsn,
+        send_default_pii=config.sentry_pii,
+    )
 
 
 def build_handlers():
