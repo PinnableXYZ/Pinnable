@@ -25,6 +25,7 @@ if config.sentry_dsn is not None:
     sentry_sdk.init(
         dsn=config.sentry_dsn,
         send_default_pii=config.sentry_pii,
+        environment=config.sentry_environment,
     )
 
 
