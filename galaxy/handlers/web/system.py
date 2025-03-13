@@ -4,9 +4,11 @@ import time
 from datetime import datetime
 
 from siwe import SiweMessage
+from sqlalchemy import func
 
 import config
 from galaxy.handlers.web import WebHandler
+from galaxy.models.pinnable import Account, CIDObject, Website
 from galaxy.tasks.pinnable import check_account
 
 
@@ -86,6 +88,23 @@ class SystemIPFSHandler(WebHandler):
         self.finalize("system/ipfs.html")
 
 
+class SystemStatsHandler(WebHandler):
+    def get(self):
+        self.values["theme_color"] = "#ffcc33"
+        stats = {}
+        stats["users"] = self.session.query(Account).count()
+        stats["websites"] = self.session.query(Website).count()
+        stats["website_total_size"] = (
+            self.session.query(func.sum(Website.size)).scalar() or 0
+        )
+        stats["objects"] = self.session.query(CIDObject).count()
+        stats["object_total_size"] = (
+            self.session.query(func.sum(CIDObject.size)).scalar() or 0
+        )
+        self.values["stats"] = stats
+        self.finalize("system/stats.html")
+
+
 class SystemSignOutHandler(WebHandler):
     def post(self):
         if self.current_user is not None:
@@ -107,4 +126,5 @@ system_handlers = [
     (r"/pricing/?$", SystemPricingHandler),
     (r"/planet/?$", SystemPlanetHandler),
     (r"/ipfs/?$", SystemIPFSHandler),
+    (r"/stats/?$", SystemStatsHandler),
 ]

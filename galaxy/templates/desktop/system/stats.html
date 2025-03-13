@@ -1,0 +1,37 @@
+{% extends 'desktop/common/layout0.html' %}
+{% block content %}
+<div class="box">
+  <h2>System Stats</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th width="130"></th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Users</td>
+        <td>{{ stats.users }}</td>
+      </tr>
+      <tr>
+        <td>Websites</td>
+        <td>{{ stats.websites }}</td>
+      </tr>
+      <tr>
+        <td>Website Storage</td>
+        <td>{{ stats.website_total_size|format_bytes }}</td>
+      </tr>
+      <tr>
+        <td>Objects</td>
+        <td>{{ stats.objects }}</td>
+      </tr>
+      <tr>
+        <td>Object Storage</td>
+        <td>{{ stats.object_total_size|format_bytes }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endblock %}
