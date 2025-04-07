@@ -200,7 +200,16 @@ def check_account(account_id: int):
         ens_balance = ens_contract.functions.balanceOf(eth_address).call() / 10**18
         print(f"🔮 ENS balance for address {eth_address}: {ens_balance}")
 
-        account.ens_balance = ens_balance
+        aave_ens_token_address = Web3.to_checksum_address(
+            "0x545bD6c032eFdde65A377A6719DEF2796C8E0f2e"
+        )
+        aave_ens_contract = w3.eth.contract(address=aave_ens_token_address, abi=ens_abi)
+        aave_ens_balance = (
+            aave_ens_contract.functions.balanceOf(eth_address).call() / 10**18
+        )
+        print(f"🔮 AAVE ENS balance for address {eth_address}: {aave_ens_balance}")
+
+        account.ens_balance = ens_balance + aave_ens_balance
 
         account.last_checked = int(time.time())
         session.commit()
