@@ -66,6 +66,12 @@ class BaseHandler(tornado.web.RequestHandler, SessionMixin, PinnableMixin):
         return self._q2
 
     @property
+    def qpriority(self):
+        if not hasattr(self, "_qpriority"):
+            self._qpriority = Queue("priority", connection=self.r, default_timeout=1800)
+        return self._qpriority
+
+    @property
     def env(self):
         return self.application.env
 

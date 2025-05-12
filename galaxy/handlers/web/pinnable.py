@@ -141,8 +141,8 @@ class PinnableWebsitesPinHandler(WebHandler):
             session_message = "Pinning website: %s" % ipfs_path
             self.web_session["message"] = session_message
             self.logger.info("Pinning website: {ipfs_path}", ipfs_path=ipfs_path)
-            self.q.enqueue(check_website, website.id)
-            self.q.enqueue(pin_website, website.id)
+            self.qpriority.enqueue(check_website, website.id)
+            self.qpriority.enqueue(pin_website, website.id)
         self.redirect("/websites/%s" % website_id)
 
 
