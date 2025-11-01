@@ -20,7 +20,7 @@ class DLPlanetHandler(APIHandler):
 
 class DLPlanetInsiderHandler(APIHandler):
     def get(self):
-        default_address = "https://opensource.planetable.xyz/planet-insider/insider-20250406-1/Planet-Insider.zip"  # noqa: E501
+        default_address = "https://opensource.planetable.xyz/planet-insider/insider-20250821-1/Planet-Insider.zip"  # noqa: E501
         mc_key = "dl:planet-insider:latest:link"
         mc_value = self.mc.get(mc_key)
         if mc_value is not None:
