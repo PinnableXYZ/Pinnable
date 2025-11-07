@@ -3,33 +3,36 @@
 <div class="box" style="position: sticky; top: 61px; background-color: {{ theme_color }};">
   <h1>Websites</h1>
 
+  {% if account.can_add_more -%}
   <div class="websites-buttons">
-  {% if account.can_add_more %}
-  <a href="/websites/add" class="btn">
-    <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
-    <span>Add Website</span>
-  </a>
-  <div style="flex: 1"></div>
-  <div class="flex-one-row">
-    <div class="segmented-control">
-      {% for o in order_options %}
-      <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
-      {% endfor %}
-    </div>
-  </div>
-  {% else %}
-    <div style="flex: 1; font-size: 16px; line-height: 1.2;">
-    {% if account.dwb_balance == 0 %}
-      Before you can add a website, you need to <a href="/pricing">get some dwb tokens</a>.
-    {% else %}
-      To add more website, you need to <a href="/pricing">get more dwb tokens</a>.
-    {% endif %}
-    </div>
+    <a href="/websites/add" class="btn">
+      <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
+      <span>Add Website</span>
+    </a>
+    <div style="flex: 1"></div>
     <div class="flex-one-row">
-      {% include 'desktop/common/get_dwb.html' %}
+      <div class="segmented-control">
+        {% for o in order_options %}
+        <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
+        {% endfor %}
+      </div>
     </div>
-  {% endif %}
   </div>
+  {%- else -%}
+  <div>
+    <div class="flex-one-row" style="flex: 1; font-size: 16px; line-height: 1.2;">
+      {% if account.dwb_balance == 0 and account.ens_balance == 0 -%}
+        Before you can add a website, you need to get some <a href="/pricing">dwb tokens</a> or ENS tokens.
+      {%- else -%}
+        To add more website, you need to get more <a href="/pricing">dwb tokens</a> or ENS tokens.
+      {%- endif %}
+    </div>
+    <div class="flex-one-row" style="margin-top: 20px;">
+      {% include 'desktop/common/get_dwb.html' %}
+      {% include 'desktop/common/get_ens.html' %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 <div class="box" id="websites">
   {% for website in websites %}

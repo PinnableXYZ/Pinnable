@@ -42,6 +42,7 @@ class SystemAuthHandler(WebHandler):
                 self.values["error"] = "Authentication failed: " + str(e)
                 self.redirect("/?error=1")
                 self.finish()
+                return
             if siwe_message is not None and hasattr(siwe_message, "expiration_time"):
                 expiration = siwe_message.expiration_time
                 dt = datetime.strptime(expiration, "%Y-%m-%dT%H:%M:%S.%fZ")

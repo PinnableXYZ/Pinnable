@@ -4,30 +4,35 @@
 <div class="box" style="position: sticky; top: 61px; z-index: 1000; background-color: {{ theme_color }};">
   <h1>Objects</h1>
 
-  <div class="websites-buttons">
+  <div>
     {% if account.can_add_more_objects %}
-    <a href="/objects/upload" class="btn">
-      <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
-      <span>Upload</span>
-    </a>
-    <div style="flex: 1"></div>
-    <div class="flex-one-row">
-      <div class="segmented-control">
-        {% for o in order_options %}
-        <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
-        {% endfor %}
+    <div class="websites-buttons">
+      <a href="/objects/upload" class="btn">
+        <img src="{{ static_url('img/plus.circle.fill.svg') }}" height="16" />
+        <span>Upload</span>
+      </a>
+      <div style="flex: 1"></div>
+      <div class="flex-one-row">
+        <div class="segmented-control">
+          {% for o in order_options %}
+          <a href="?o={{ o }}" class="segmented-control-item{% if order == o %} active{% endif %}">{{ o.title() }}</a>
+          {% endfor %}
+        </div>
       </div>
     </div>
     {% else %}
-    <div style="flex: 1; font-size: 16px; line-height: 1.2;">
-    {% if account.dwb_balance == 0 %}
-      Before you can upload, you need to <a href="/pricing">get some dwb tokens</a>.
-    {% else %}
-      To upload more, you need to <a href="/pricing">get more dwb tokens</a>.
-    {% endif %}
-    </div>
-    <div class="flex-one-row">
-      {% include 'desktop/common/get_dwb.html' %}
+    <div>
+      <div style="flex: 1; font-size: 16px; line-height: 1.2;">
+      {% if account.dwb_balance == 0 and account.ens_balance == 0 %}
+        Before you can upload, you need to get some <a href="/pricing">dwb tokens</a> or ENS tokens.
+      {% else %}
+        To upload more, you need to get more <a href="/pricing">dwb tokens</a> or ENS tokens.
+      {% endif %}
+      </div>
+      <div class="flex-one-row" style="margin-top: 20px;">
+        {% include 'desktop/common/get_dwb.html' %}
+        {% include 'desktop/common/get_ens.html' %}
+      </div>
     </div>
     {% endif %}
   </div>
