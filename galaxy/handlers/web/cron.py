@@ -3,7 +3,7 @@
 import config
 from galaxy.handlers.web import WebHandler
 from galaxy.models.pinnable import Website
-from galaxy.tasks.pinnable import check_website
+from galaxy.tasks.pinnable import check_website, has_recent_pin_failure
 
 
 class CronHandler(WebHandler):
@@ -16,6 +16,8 @@ class CronHandler(WebHandler):
                 return
         websites = self.session.query(Website).all()
         for website in websites:
+            if has_recent_pin_failure(website.id):
+                continue
             self.q.enqueue(check_website, website.id)
 
 

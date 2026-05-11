@@ -21,6 +21,56 @@ Session = scoped_session(sessionmaker(bind=engine))
 r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
 
+PIN_FAILURE_BACKOFFS = (
+    15 * 60,
+    60 * 60,
+    24 * 60 * 60,
+)
+PIN_FAILURE_HISTORY_TTL = 7 * 24 * 60 * 60
+PIN_FAILURE_REASON_LIMIT = 500
+
+
+def pin_failure_key(website_id: int) -> str:
+    return f"{config.cache_prefix}:pin-failure:{website_id}"
+
+
+def pin_failure_backoff(failure_count: int) -> int:
+    if failure_count <= 1:
+        return PIN_FAILURE_BACKOFFS[0]
+    if failure_count == 2:
+        return PIN_FAILURE_BACKOFFS[1]
+    return PIN_FAILURE_BACKOFFS[-1]
+
+
+def has_recent_pin_failure(website_id: int) -> bool:
+    backoff_until = r.hget(pin_failure_key(website_id), "backoff_until")
+    if backoff_until is None:
+        return False
+    return int(backoff_until) > int(time.time())
+
+
+def record_pin_failure(website_id: int, reason: str):
+    key = pin_failure_key(website_id)
+    failure_count = r.hincrby(key, "count", 1)
+    backoff_seconds = pin_failure_backoff(failure_count)
+    now = int(time.time())
+    pipe = r.pipeline()
+    pipe.hset(
+        key,
+        mapping={
+            "last_failed": now,
+            "backoff_until": now + backoff_seconds,
+            "backoff_seconds": backoff_seconds,
+            "reason": str(reason)[:PIN_FAILURE_REASON_LIMIT],
+        },
+    )
+    pipe.expire(key, PIN_FAILURE_HISTORY_TTL)
+    pipe.execute()
+
+
+def clear_pin_failure(website_id: int):
+    r.delete(pin_failure_key(website_id))
+
 
 def test_clean_up(website_id: int):
     session = Session()
@@ -365,11 +415,14 @@ def check_website(website_id: int):
                             website.last_known_ipns = ipns
                         website.last_checked = int(time.time())
                     session.commit()
-                    if website.last_pinned is None:
-                        # Pin the website
-                        q.enqueue(pin_website, website.id)
-                    else:
-                        if website.seconds_since(website.last_pinned) > 60:
+                    if website.last_pinned is None or website.seconds_since(
+                        website.last_pinned
+                    ) > 60:
+                        if has_recent_pin_failure(website.id):
+                            print(
+                                f"Skipping pin for {website.name}: recent pin failure"
+                            )
+                        else:
                             # Pin the website
                             q.enqueue(pin_website, website.id)
                 else:
@@ -470,14 +523,23 @@ def pin_website(website_id: int):
         print(f"😖 Website (id={website_id}) not found")
         session.close()
         return
+    ipfs_path = website.ipfs_path
+    if ipfs_path is None:
+        record_pin_failure(website.id, "Website has no IPFS path")
+        session.close()
+        return
     # call ipfs pin add
-    pin_request = f"{config.ipfs_server}/api/v0/pin/add?arg={website.ipfs_path}"
+    pin_request = f"{config.ipfs_server}/api/v0/pin/add?arg={ipfs_path}"
     print(f"🪃  POST: {pin_request}")
+    failure_reason = None
+    pin_succeeded = False
     try:
         resp = requests.post(pin_request, timeout=120)
         if resp.status_code == 200:
             data = resp.json()
-            if "Pins" in data:
+            if "Pins" in data and len(data["Pins"]) > 0:
+                pin_succeeded = True
+                clear_pin_failure(website.id)
                 # Website is pinned
                 cid = data["Pins"][0]
                 cid_tasklog = None
@@ -532,10 +594,16 @@ def pin_website(website_id: int):
                             cid_tasklog.size = website.size
                         session.commit()
             else:
-                # Not pinned
-                pass
+                failure_reason = "IPFS pin response did not include Pins"
+        else:
+            failure_reason = f"IPFS pin returned HTTP {resp.status_code}"
     except Exception as e:
+        if not pin_succeeded:
+            failure_reason = repr(e)
         print(e)
+    if failure_reason is not None:
+        record_pin_failure(website.id, failure_reason)
+        print(f"Failed to pin {website.name}: {failure_reason}")
     session.close()
 
 
