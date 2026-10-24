@@ -21,38 +21,45 @@ Session = scoped_session(sessionmaker(bind=engine))
 r = redis.Redis(host=config.redis_host, port=config.redis_port, db=0)
 q = Queue("pinnable", connection=r, default_timeout=1800)
 
-PIN_FAILURE_BACKOFFS = (
+# Something that keeps failing is retried at most twice a day: once 15 minutes
+# after the first failure, then every 12 hours until it succeeds. Many sites
+# fail for good once their IPNS record stops being republished.
+FAILURE_BACKOFFS = (
     15 * 60,
-    60 * 60,
-    24 * 60 * 60,
+    12 * 60 * 60,
 )
-PIN_FAILURE_HISTORY_TTL = 7 * 24 * 60 * 60
-PIN_FAILURE_REASON_LIMIT = 500
+FAILURE_HISTORY_TTL = 7 * 24 * 60 * 60
+FAILURE_REASON_LIMIT = 500
 
 
-def pin_failure_key(website_id: int) -> str:
-    return f"{config.cache_prefix}:pin-failure:{website_id}"
+def failure_key(kind: str, website_id: int) -> str:
+    # kind is "pin" or "check"; separate counters so a check that succeeds
+    # doesn't reset the backoff of a pin that keeps failing.
+    return f"{config.cache_prefix}:{kind}-failure:{website_id}"
 
 
-def pin_failure_backoff(failure_count: int) -> int:
-    if failure_count <= 1:
-        return PIN_FAILURE_BACKOFFS[0]
-    if failure_count == 2:
-        return PIN_FAILURE_BACKOFFS[1]
-    return PIN_FAILURE_BACKOFFS[-1]
+def failure_backoff(failure_count: int) -> int:
+    return FAILURE_BACKOFFS[min(failure_count, len(FAILURE_BACKOFFS)) - 1]
 
 
-def has_recent_pin_failure(website_id: int) -> bool:
-    backoff_until = r.hget(pin_failure_key(website_id), "backoff_until")
+def has_recent_failure(kind: str, website_id: int) -> bool:
+    backoff_until = r.hget(failure_key(kind, website_id), "backoff_until")
     if backoff_until is None:
         return False
     return int(backoff_until) > int(time.time())
 
 
-def record_pin_failure(website_id: int, reason: str):
-    key = pin_failure_key(website_id)
+def is_backing_off(website_id: int) -> bool:
+    """Whether automatic checks and pins should skip this website for now."""
+    return has_recent_failure("pin", website_id) or has_recent_failure(
+        "check", website_id
+    )
+
+
+def record_failure(kind: str, website_id: int, reason: str):
+    key = failure_key(kind, website_id)
     failure_count = r.hincrby(key, "count", 1)
-    backoff_seconds = pin_failure_backoff(failure_count)
+    backoff_seconds = failure_backoff(failure_count)
     now = int(time.time())
     pipe = r.pipeline()
     pipe.hset(
@@ -61,15 +68,23 @@ def record_pin_failure(website_id: int, reason: str):
             "last_failed": now,
             "backoff_until": now + backoff_seconds,
             "backoff_seconds": backoff_seconds,
-            "reason": str(reason)[:PIN_FAILURE_REASON_LIMIT],
+            "reason": str(reason)[:FAILURE_REASON_LIMIT],
         },
     )
-    pipe.expire(key, PIN_FAILURE_HISTORY_TTL)
+    pipe.expire(key, FAILURE_HISTORY_TTL)
     pipe.execute()
 
 
-def clear_pin_failure(website_id: int):
-    r.delete(pin_failure_key(website_id))
+def clear_failure(kind: str, website_id: int):
+    r.delete(failure_key(kind, website_id))
+
+
+def ipfs_error(resp) -> str:
+    """Kubo puts the reason for an error response in a JSON Message."""
+    try:
+        return resp.json().get("Message") or resp.text
+    except ValueError:
+        return resp.text
 
 
 def test_clean_up(website_id: int):
@@ -374,6 +389,8 @@ def check_website(website_id: int):
     if website.pin_api_uuid is None or len(website.pin_api_uuid) == 0:
         website.pin_api_uuid = str(uuid.uuid4())
         session.commit()
+    # Set when the name doesn't resolve; recorded once below for the backoff.
+    check_failure = None
     if website.kind == "IPNS":
         # Try resolve the IPNS name with IPFS API
         api_request = f"{config.ipfs_server}/api/v0/resolve?arg=/ipns/{website.name}&recursive=false"  # noqa
@@ -393,7 +410,15 @@ def check_website(website_id: int):
                             website.last_known_ipns = website.name
                         website.last_checked = int(time.time())
                     session.commit()
+                else:
+                    check_failure = "IPFS resolve response did not include Path"
+            else:
+                check_failure = (
+                    f"IPFS resolve returned HTTP {resp.status_code}: "
+                    f"{ipfs_error(resp)}"
+                )
         except Exception as e:
+            check_failure = repr(e)
             print(e)
     if website.kind == "ENS":
         # Try resolve the ENS name with IPFS API
@@ -415,10 +440,11 @@ def check_website(website_id: int):
                             website.last_known_ipns = ipns
                         website.last_checked = int(time.time())
                     session.commit()
-                    if website.last_pinned is None or website.seconds_since(
-                        website.last_pinned
-                    ) > 60:
-                        if has_recent_pin_failure(website.id):
+                    if (
+                        website.last_pinned is None
+                        or website.seconds_since(website.last_pinned) > 60
+                    ):
+                        if has_recent_failure("pin", website.id):
                             print(
                                 f"Skipping pin for {website.name}: recent pin failure"
                             )
@@ -427,10 +453,21 @@ def check_website(website_id: int):
                             q.enqueue(pin_website, website.id)
                 else:
                     create_tasklog_failed_to_resolve_ens(website.id)
+                    check_failure = "IPFS resolve response did not include Path"
             else:
                 create_tasklog_failed_to_resolve_ens(website.id)
+                check_failure = (
+                    f"IPFS resolve returned HTTP {resp.status_code}: "
+                    f"{ipfs_error(resp)}"
+                )
         except Exception as e:
+            check_failure = repr(e)
             print(e)
+    if check_failure is not None:
+        record_failure("check", website.id, check_failure)
+        print(f"Failed to check {website.name}: {check_failure}")
+    elif website.kind in ("IPNS", "ENS"):
+        clear_failure("check", website.id)
     if website.last_known_cid is not None:
         api_request = (
             f"{config.ipfs_server}/api/v0/files/stat?arg=/ipfs/{website.last_known_cid}"
@@ -525,7 +562,7 @@ def pin_website(website_id: int):
         return
     ipfs_path = website.ipfs_path
     if ipfs_path is None:
-        record_pin_failure(website.id, "Website has no IPFS path")
+        record_failure("pin", website.id, "Website has no IPFS path")
         session.close()
         return
     # call ipfs pin add
@@ -539,7 +576,7 @@ def pin_website(website_id: int):
             data = resp.json()
             if "Pins" in data and len(data["Pins"]) > 0:
                 pin_succeeded = True
-                clear_pin_failure(website.id)
+                clear_failure("pin", website.id)
                 # Website is pinned
                 cid = data["Pins"][0]
                 cid_tasklog = None
@@ -596,13 +633,15 @@ def pin_website(website_id: int):
             else:
                 failure_reason = "IPFS pin response did not include Pins"
         else:
-            failure_reason = f"IPFS pin returned HTTP {resp.status_code}"
+            failure_reason = (
+                f"IPFS pin returned HTTP {resp.status_code}: {ipfs_error(resp)}"
+            )
     except Exception as e:
         if not pin_succeeded:
             failure_reason = repr(e)
         print(e)
     if failure_reason is not None:
-        record_pin_failure(website.id, failure_reason)
+        record_failure("pin", website.id, failure_reason)
         print(f"Failed to pin {website.name}: {failure_reason}")
     session.close()
 

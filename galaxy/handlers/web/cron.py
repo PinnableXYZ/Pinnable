@@ -3,7 +3,7 @@
 import config
 from galaxy.handlers.web import WebHandler
 from galaxy.models.pinnable import Website
-from galaxy.tasks.pinnable import check_website, has_recent_pin_failure
+from galaxy.tasks.pinnable import check_website, is_backing_off
 from galaxy.utils.jobs import has_pending_job, remember_pending_job
 
 
@@ -17,7 +17,8 @@ class CronHandler(WebHandler):
                 return
         websites = self.session.query(Website).all()
         for website in websites:
-            if has_recent_pin_failure(website.id):
+            # Sites whose check or pin keeps failing are retried twice a day.
+            if is_backing_off(website.id):
                 continue
             # Cron fires every 2 minutes; when workers fell behind, enqueueing
             # regardless piled up millions of duplicate checks in Redis.

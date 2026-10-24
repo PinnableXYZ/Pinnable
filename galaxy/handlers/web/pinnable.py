@@ -12,6 +12,7 @@ from galaxy.tasks.pinnable import (
     check_account,
     check_website,
     fetch_website_info,
+    is_backing_off,
     pin_website,
 )
 from galaxy.utils.jobs import has_pending_job, remember_pending_job
@@ -64,7 +65,9 @@ class PinnableWebsitesInfoHandler(WebHandler):
     def get(self, website_id):
         website = self.get_website_by_id(website_id)
         if website and website.account_id == self.current_user.id:
-            if website.seconds_since(website.last_checked) > 60:
+            if website.seconds_since(website.last_checked) > 60 and not is_backing_off(
+                website.id
+            ):
                 self.q.enqueue(check_website, website.id)
             if website.needs_info:
                 self.q.enqueue(fetch_website_info, website.id)
