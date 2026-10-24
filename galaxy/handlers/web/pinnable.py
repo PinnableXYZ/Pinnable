@@ -2,6 +2,7 @@
 
 import json
 
+from rq.job import Dependency
 from tornado import gen
 from tornado.iostream import StreamClosedError
 from tornado.web import authenticated
@@ -13,6 +14,7 @@ from galaxy.tasks.pinnable import (
     fetch_website_info,
     pin_website,
 )
+from galaxy.utils.jobs import has_pending_job, remember_pending_job
 
 
 class PinnableWebsitesHandler(WebHandler):
@@ -134,15 +136,27 @@ class PinnableWebsitesLogsHandler(WebHandler):
 class PinnableWebsitesPinHandler(WebHandler):
     @authenticated
     def get(self, website_id):
-        self.q.enqueue(check_account, self.current_user.id)
         website = self.get_website_by_id(website_id)
+        if website is None or website.account_id != self.current_user.id:
+            self.redirect("/websites")
+            return
+        self.q.enqueue(check_account, self.current_user.id)
         ipfs_path = website.ipfs_path
-        if website and ipfs_path:
+        if ipfs_path:
             session_message = "Pinning website: %s" % ipfs_path
             self.web_session["message"] = session_message
             self.logger.info("Pinning website: {ipfs_path}", ipfs_path=ipfs_path)
-            self.qpriority.enqueue(check_website, website.id)
-            self.qpriority.enqueue(pin_website, website.id)
+            # Repeated clicks reuse the pin already in flight.
+            if not has_pending_job(self.r, "priority-pin", website.id):
+                check_job = self.qpriority.enqueue(check_website, website.id)
+                # Pin after the check refreshes the IPFS path, however many priority
+                # workers run; a failed check still lets the pin go ahead.
+                pin_job = self.qpriority.enqueue(
+                    pin_website,
+                    website.id,
+                    depends_on=Dependency(jobs=[check_job], allow_failure=True),
+                )
+                remember_pending_job(self.r, "priority-pin", website.id, pin_job)
         self.redirect("/websites/%s" % website_id)
 
 
